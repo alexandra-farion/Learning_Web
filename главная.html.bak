@@ -22,9 +22,9 @@
   <button>
     <img src="img/ads.jpg" alt="" style="vertical-align:middle" >
    </button></td>
-   <td align="center"><button><img src="img/reports.png" alt="" style="vertical-align:middle"></button></td>
+   <td><button align="center"><img src="img/reports.png" alt="" style="vertical-align:middle"></button></td>
    <td align="center">
-  <button>
+  <button align="center">
     <img src="img/diary.jpg" alt="" style="vertical-align:middle">
    </button></td>
    </tr>
