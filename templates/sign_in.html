@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Вход</title>
+    <link rel="shortcut icon" href="http://localhost:49147/img/emblem.png">
 </head>
 <style type="text/css">
 .box {
@@ -21,6 +22,9 @@
     width: 100px;
     border-radius: 3px;
    }
+body {
+    background-color: #F9F2DC
+   }
 
 </style>
 <body>
@@ -29,9 +33,10 @@
         <th width="100%" bgcolor="#F9F2DC" height="2" colspan="3"></th>
     </tr>
     <tr>
-        <td bgcolor="#F9F2DC" width="30%" height="550"><img src="img/for_sing_in.png" align="bottom"></td>
+        <td bgcolor="#F9F2DC" width="30%" height="550"><img src="http://localhost:49147/img/for_sing_in.png"
+                                                            align="bottom"></td>
         <td bgcolor="#DBCFA9" align="center">
-            <img src="img/for_main 2.png"><img src="img/for_main.png">
+            <img src="http://localhost:49147/img/for_main 2.png"><img src="http://localhost:49147/img/for_main.png">
             <h2 align="top"><i>Учебная паутина</i></h2>
             <p align="left"><i>Регион</i></p>
             <select class="box">
@@ -64,9 +69,11 @@
             </select><br><br>
             <i>Логин</i> <input type='text'><br><br>
             <i>Пароль</i> <input type='password'><br><br>
-            <button class="button"><i>Войти</i></button>
+            <button class="button" onclick="window.location.href='/html/main.html'">
+                <i>Войти</i>
+            </button>
         </td>
-        <td bgcolor="#F9F2DC" width="30%"><img src="img/for_sing_in 2.png" align="right"></td>
+        <td bgcolor="#F9F2DC" width="30%"><img src="http://localhost:49147/img/for_sing_in 2.png" align="right"></td>
     </tr>
     <tr>
         <th width="100%" bgcolor="#F9F2DC" height="2" colspan="3"></th>
