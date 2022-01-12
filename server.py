@@ -1,36 +1,47 @@
-# http://localhost:49147/
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from fastapi.templating import Jinja2Templates
 from uvicorn import run
 
+from scripts.data_base import DataBase
+
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+db = DataBase("peoples", False, ("Surname", "text PRIMARY KEY"), ("Password", "text"),
+              ("School", "text"), ("Class", "text"), ("Character", "text"))
 
 
-def get_html(html: str, request: Request):
-    return templates.TemplateResponse(html, {"request": request})
+@app.get("/{surname}/{password}/{school}")
+async def enter(surname: str, password: str, school: str):
+    if db.contains_data("Surname='" + surname + "' AND Password='" +
+                        password + "' AND School='" + school.replace('"', "") + "'"):
+        return db.get_data("Character", "Surname='" + surname + "'")
+    return "None"
 
 
-@app.get("/", response_class=HTMLResponse)
-async def sign(request: Request):
-    return get_html("sign_in.html", request)
+@app.get("/")
+def sign():
+    return file("sign_in.html")
 
 
-@app.get("/html/{name}", response_class=HTMLResponse)
-async def page(request: Request, name: str):
-    return get_html(name, request)
+@app.get("/{name}")
+def file(name: str):
+    match name[-1]:
+        case "l":
+            return FileResponse("templates/" + name)
+        case "s":
+            return FileResponse("js/" + name)
+        case "g":
+            return FileResponse("img/" + name)
 
 
-@app.get("/img/{name}")
-async def get_img(name: str):
-    return FileResponse("img/" + name)
+@app.on_event("startup")
+async def run_server():
+    db.connect()
 
 
-def run_server():
-    run("server:app", host="0.0.0.0", port=49147)
+@app.on_event("shutdown")
+def stop_server():
+    db.disconnect()
 
 
 if __name__ == '__main__':
-    run_server()
+    run("server:app", host="0.0.0.0", port=49147)
