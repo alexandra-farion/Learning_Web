@@ -8,30 +8,32 @@
 <style type="text/css">
 .box {
       width: 560px;
-      height: 20px;
+      height: 30px;
       border: 1px solid #999;
       font-size: 16px;
       color: #c09a7f;
       background-color: #eee;
       border-radius: 3px;
-      }
+}
 .button {
     background: #F9F2DC;
     border: #DBCFA9;
     height: 40px;
     width: 130px;
     border-radius: 3px;
-   }
+}
 .button:hover {
     background-color: #B7A295;
     color: white;
 }
 body {
     background-color: #F9F2DC
-   }
+}
 i {
     font-size: 15pt;
 }
+.label:active,
+.label:focus,
 
 </style>
 <body>
@@ -63,7 +65,7 @@ i {
                 <option>Школа №9</option>
                 <option>Гимназия №8</option>
             </select><br><br>
-            <i>Логин</i> <input type='text' id="surname"><br><br>
+            <i>Логин</i> <input type='text' id="surname" autofocus><br><br>
             <i>Пароль</i> <input type='password' id="password"><br><br>
             <button class="button" id="enter_button">
                 <i>Войти</i>

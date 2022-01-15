@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import psycopg
 
 
@@ -30,7 +28,9 @@ class DataBase:
 
     def __try_catch(self, func):
         try:
-            return func()
+            val = func()
+            self.__connection.commit()
+            return val
         except BaseException as e:
             self.__connection.rollback()
             self.__connection.close()
@@ -65,7 +65,7 @@ class DataBase:
     def get_data(self, what: str, where: str):
         def f():
             self.__cursor.execute("SELECT " + what + " FROM " + self.__name + " WHERE " + where)
-            return self.__cursor.fetchall()[-1][0]
+            return self.__cursor.fetchall()[-1]
 
         return self.__try_catch(f)
 
@@ -82,12 +82,12 @@ class DataBase:
         self.__connection = psycopg.connect(dbname="test", user="postgres", password="7604")
         self.__cursor = self.__connection.cursor()
         self.__cursor.execute(self.__create[:-2] + ")")
-        print("BD", self.__name, "connected")
+        print("DB", self.__name, "connected")
 
     def disconnect(self):
         self.__connection.commit()
         self.__connection.close()
-        print("BD", self.__name, "disconnected")
+        print("DB", self.__name, "disconnected")
 
     def kill_base(self):
         self.__cursor.execute(self.__drop)
