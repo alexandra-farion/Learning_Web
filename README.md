@@ -1,1 +1,1 @@
-Now we're having a server! 
+Alpha!

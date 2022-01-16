@@ -70,7 +70,8 @@ async def enter(response: Response, surname: str, password: str, school: str):
 
         response.set_cookie(key="user_data", value=str({"Surname": serialize(data[1]),
                                                         "School": serialize(data[3]),
-                                                        "Class": serialize(data[4])}), httponly=False)
+                                                        "Class": serialize(data[4]),
+                                                        "Character": serialize(data[5])}), httponly=False)
         return data[-1]
     return "None"
 

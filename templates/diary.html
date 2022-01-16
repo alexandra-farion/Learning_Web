@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Дневник</title>
     <link rel="shortcut icon" href="emblem.png">
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.min.css'>
 </head>
 <style>
  .vertical span {
@@ -21,11 +22,37 @@
     background-color: #B7A295;
     color: white;
 }
+.containerSubj {
+    width: 150px;
+    height: 25px;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 15pt;
+}
+.containerDesc {
+    width: 250px;
+    height: 25px;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 15pt;
+}
+.containerMark {
+    width: 30px;
+    height: 25px;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 15pt;
+}
+.row {
+    height: 30px;
+    background-color: #ffffff;
+}
 i {
     font-size: 15pt;
 }
-
-
 
 </style>
 <body>
@@ -53,12 +80,6 @@ i {
                 <tr id="0">
                     <th rowspan="8" bgcolor="#F9F2DC" width="20" class=vertical><span><i>Понедельник</i></span></th>
                 </tr>
-                <!--                <tr>-->
-                <!--                    <th rowspan="8" bgcolor="#F9F2DC" width="20" class=vertical><span><i>Понедельник</i></span></th>-->
-                <!--                    <td bgcolor="#ffffff"><i>Алгебра</i></td>-->
-                <!--                    <td width="150" bgcolor="#ffffff"><i>параграф 12, № 12.1</i></td>-->
-                <!--                    <td width="30" bgcolor="#ffffff"><i>5</i></td>-->
-                <!--                </tr>-->
             </table>
         </td>
         <td>
@@ -114,5 +135,7 @@ i {
 </table>
 </body>
 
-<script src="schedule.js" charset="utf-8"></script>
+<script type="module" src="base.js" charset="utf-8"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="module" src="schedule.js" charset="utf-8"></script>
 </html>
