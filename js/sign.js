@@ -10,19 +10,27 @@ document.addEventListener("DOMContentLoaded", function() {
         req.send(null);
 
         var str = req.responseText.substr(1, req.responseText.length-2)
-        if (str === 'Ученик') window.location.href = "main.html";
-        if (str === 'Учитель') window.location.href = "main_for_teachers.html";
-        if (str === 'Админ') window.location.href = "main_for_admins.html";
-
-        Swal.fire({
-            title: "Неверные ЛОГИН или ПАРОЛЬ!",
-            icon: 'error',
-            timer: 2500,
-            timerProgressBar: true,
-            showConfirmButton: false,
-            toast: true,
-            position: "top"
-        })
+        if (str === 'Ученик') {
+            window.location.href = "main.html";
+        } else {
+            if (str === 'Учитель') {
+                window.location.href = "main_for_teachers.html";
+            } else {
+                if (str === 'Админ') {
+                    window.location.href = "main_for_admins.html";
+                } else {
+                    Swal.fire({
+                        title: "Неверные ЛОГИН или ПАРОЛЬ!",
+                        icon: 'error',
+                        timer: 2500,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: "top"
+                    })
+                }
+            }
+        }
     }
   };
 });
