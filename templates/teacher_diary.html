@@ -1,47 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="utf-8">
     <title>Дневник</title>
     <link rel="shortcut icon" href="emblem.png">
 </head>
-<style>
- .vertical span {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-}
-.button {
-    background: #F9F2DC;
-    border: #DBCFA9;
-    height: 30px;
-    width: 140px;
-    border-radius: 3px;
-   }
-.button:hover {
-    background-color: #B7A295;
-    color: white;
-}
-i {
-    font-size: 15pt;
-}
 
+<style>
+    .vertical span {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+    }
+
+    .button {
+        background: #F9F2DC;
+        border: #DBCFA9;
+        height: 30px;
+        width: 140px;
+        border-radius: 3px;
+    }
+
+    .button:hover {
+        background-color: #B7A295;
+        color: white;
+    }
+
+    i {
+        font-size: 15pt;
+    }
 </style>
+
 <body>
 <table align="center" width="100%" cellspacing="0" cellpadding="4">
     <tr>
-        <th bgcolor="#F9F2DC" width="100%" height="60" colspan="4"><img src="emblem.png"
-                                                                        align="right">
-            <p align="left"><img src="for_main.png" align="center">
-                <text><i>Учебная паутина</i></text>
+        <th bgcolor="#F9F2DC" width="100%" height="60" colspan="4">
+            <img src="emblem.png" align="right" alt="">
+            <p align="left">
+                <img src="for_main.png" align="center" alt="">
+                <text>
+                    <i>Учебная паутина</i>
+                </text>
             </p>
         </th>
     </tr>
     <tr>
         <th bgcolor="#DBCFA9" width="100%" height="40" colspan="4" align="right">
-            <button class="button" id="back"><i>На главную</i></button>
+            <button class="button" id="back" onclick="window.location.href='teacher_main.html'">
+                <i>На главную</i>
+            </button>
     </tr>
     <tr>
-        <th align="center" colspan="4" height="50"><i>Выберите неделю </i><input type='week'></th>
+        <th align="center" colspan="4" height="50">
+            <i>Выберите неделю </i>
+            <label>
+                <input type='week'>
+            </label>
+        </th>
     </tr>
     <tr>
         <td>
@@ -427,6 +441,5 @@ i {
 </body>
 
 <script type="module" src="base.js" charset="utf-8"></script>
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="diary.js" charset="utf-8"></script>
 </html>

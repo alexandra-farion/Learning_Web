@@ -64,11 +64,7 @@ class DataBase:
     def get_data(self, what: str, where: str):
         def f():
             self.__cursor.execute("SELECT " + what + " FROM " + self.__name + " WHERE " + where)
-            # print(ord(("SELECT " + what + " FROM " + self.__name + " WHERE " + where)[-13]))
-            # self.__cursor.execute("SELECT Schedule FROM diary WHERE School='МАОУ Лицей №6' AND Class='11А'")
-            r = self.__cursor.fetchall()
-            # print(r)
-            return r[0]
+            return self.__cursor.fetchall()[-1]
 
         return self.__try_catch(f)
 

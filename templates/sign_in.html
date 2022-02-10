@@ -5,80 +5,108 @@
     <title>Вход</title>
     <link rel="shortcut icon" href="emblem.png">
 </head>
-<style type="text/css">
-.box {
-      width: 560px;
-      height: 30px;
-      border: 1px solid #999;
-      font-size: 16px;
-      color: #c09a7f;
-      background-color: #eee;
-      border-radius: 3px;
-}
-.button {
-    background: #F9F2DC;
-    border: #DBCFA9;
-    height: 40px;
-    width: 130px;
-    border-radius: 3px;
-}
-.button:hover {
-    background-color: #B7A295;
-    color: white;
-}
-body {
-    background-color: #F9F2DC
-}
-i {
-    font-size: 15pt;
-}
-.label:active,
-.label:focus,
 
+<style>
+    .box {
+        width: 560px;
+        height: 30px;
+        border: 1px solid #999;
+        font-size: 16px;
+        color: #c09a7f;
+        background-color: #eee;
+        border-radius: 3px;
+    }
+
+    .button {
+        background: #F9F2DC;
+        border: #DBCFA9;
+        height: 40px;
+        width: 130px;
+        border-radius: 3px;
+    }
+
+    .button:hover {
+        background-color: #B7A295;
+        color: white;
+    }
+
+    body {
+        background-color: #F9F2DC
+    }
+
+    i {
+        font-size: 15pt;
+    }
 </style>
+
 <body>
-<table align="center" width="100%" cellspacing="0" cellpadding="19">
+<table align="center" cellpadding="19">
     <tr>
         <th width="100%" bgcolor="#F9F2DC" height="2" colspan="3"></th>
     </tr>
     <tr>
-        <td bgcolor="#F9F2DC" width="30%" height="550"><img src="for_sing_in.png"
-                                                            align="bottom"></td>
+        <td bgcolor="#F9F2DC" width="30%" height="550">
+            <img src="for_sign_0.png" align="bottom" alt="">
+        </td>
         <td bgcolor="#DBCFA9" align="center">
-            <img src="for_main 2.png"><img src="for_main.png">
+            <img src="for_sign_1.png" alt="">
+            <img src="for_main.png" alt="">
             <h2 align="top"><i>Учебная паутина</i></h2>
+
             <p align="left"><i>Регион</i></p>
-            <select class="box">
-                <option>Челябинская область</option>
-                <option>Калининградская область</option>
-                <option>Омская область</option>
-            </select><br><br>
+            <label>
+                <select class="box">
+                    <option>Челябинская область</option>
+                    <option>Калининградская область</option>
+                    <option>Омская область</option>
+                </select>
+            </label>
+            <br><br>
+
             <p align="left"><i>Город</i></p>
-            <select class="box">
-                <option>г. Миасс</option>
-                <option>г. Озёрск</option>
-                <option>г. Снежинск</option>
-            </select><br><br>
+            <label>
+                <select class="box">
+                    <option>г. Миасс</option>
+                    <option>г. Озёрск</option>
+                    <option>г. Снежинск</option>
+                </select>
+            </label>
+            <br><br>
+
             <p align="left"><i>Образовательная организация</i></p>
-            <select class="box" id="schools">
-                <option>МАОУ "Лицей №6"</option>
-                <option>Школа №9</option>
-                <option>Гимназия №8</option>
-            </select><br><br>
-            <i>Логин</i> <input type='text' id="surname" autofocus><br><br>
-            <i>Пароль</i> <input type='password' id="password"><br><br>
+            <label for="schools">
+                <select class="box" id="schools">
+                    <option>МАОУ "Лицей №6"</option>
+                    <option>Школа №9</option>
+                    <option>Гимназия №8</option>
+                </select>
+            </label>
+            <br><br>
+
+            <i>Логин</i>
+            <label for="surname">
+                <input type='text' id="surname" autofocus>
+            </label>
+            <br><br>
+
+            <i>Пароль</i>
+            <label for="password">
+                <input type='password' id="password">
+            </label>
+            <br><br>
+
             <button class="button" id="enter_button">
                 <i>Войти</i>
             </button>
         </td>
-        <td bgcolor="#F9F2DC" width="30%"><img src="for_sing_in 2.png" align="right"></td>
-    </tr>
-    <tr>
-        <th width="100%" bgcolor="#F9F2DC" height="2" colspan="3"></th>
+
+        <td bgcolor="#F9F2DC" width="30%">
+            <img src="for_sign_2.png" align="right" alt="">
+        </td>
     </tr>
 </table>
 </body>
 
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="sign.js" charset="utf-8" ></script>
+<script src="sign.js" charset="utf-8"></script>
 </html>

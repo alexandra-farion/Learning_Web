@@ -1,27 +1,17 @@
-export function deserialize(string) {
-    string = string.split(" ")
-    var arr = string.map(s => parseInt(s))
-    var str = ""
-    for (var i = 0; i < arr.length;i++) {
-        str += String.fromCharCode(arr[i])
-    }
-    return str
-}
-
 export function getWeekNumber(d) {
     // Copy date so don't modify original
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     // Set to nearest Thursday: current date + 4 - current day number
     // Make Sunday's day number 7
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
     // Get first day of year
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     // Calculate full weeks to nearest Thursday
-    return Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
 export function niceDate(d) {
-    var weekNo = getWeekNumber(d)
+    let weekNo = getWeekNumber(d);
     if (weekNo < 10) {
         weekNo = String(0) + String(weekNo)
     }
@@ -29,4 +19,4 @@ export function niceDate(d) {
 }
 
 export var req = new XMLHttpRequest();
-export var json = JSON.parse(document.cookie.match('(^|;) ?user_data=([^;]*)(;|$)')[2].split("\\054").join(",").slice(1, -1).split("'").join('"'))
+// export var json = JSON.parse(document.cookie.match('(^|;) ?user_data=([^;]*)(;|$)')[2].split("\\054").join(",").slice(1, -1).split("'").join('"'))

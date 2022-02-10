@@ -20,13 +20,13 @@ class DB:
         self.__db_diary.kill_base()
 
     def add_people(self):
-        self.__db_peoples.add_data("Мухортов", "0000", "МАОУ Лицей №6", "11А", "Ученик")
-        self.__db_peoples.add_data("Учитель1", "1111", "МАОУ Лицей №6", "0", "Учитель")
-        self.__db_peoples.add_data("1", "1", "МАОУ Лицей №6", "11А", "Ученик")
-        self.__db_peoples.add_data("Админ666", "666", "МАОУ Лицей №6", "0", "Админ")
+        self.__db_peoples.add_data("Мухортов", "0000", 'МАОУ "Лицей №6"', "11А", "Student")
+        self.__db_peoples.add_data("Учитель1", "1111", 'МАОУ "Лицей №6"', "0", "Teacher")
+        self.__db_peoples.add_data("1", "1", 'МАОУ "Лицей №6"', "11А", "Student")
+        self.__db_peoples.add_data("Админ666", "666", 'МАОУ "Лицей №6"', "0", "Admin")
 
     def add_diary(self):
-        self.__db_diary.add_data("МАОУ Лицей №6", "11А",
+        self.__db_diary.add_data('МАОУ "Лицей №6"', "11А",
                                  datetime.date.today().isocalendar()[1],
                                  '{'
                                  '{{"Информатика", "§30"}, '

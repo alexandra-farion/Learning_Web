@@ -14,8 +14,8 @@ var character = deserialize(json.Character)
 
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("back").onclick = function() {
-        if (character === 'Ученик') window.location.href = "main.html";
-        if (character === 'Учитель') window.location.href = "main_for_teachers.html";
-        if (character === 'Админ') window.location.href = "main_for_admins.html";
+        if (character === 'Ученик') window.location.href = "student_main.html";
+        if (character === 'Учитель') window.location.href = "teacher_main.html";
+        if (character === 'Админ') window.location.href = "admin_main.html";
     }
 });
