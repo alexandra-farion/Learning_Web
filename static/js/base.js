@@ -19,4 +19,3 @@ export function niceDate(d) {
 }
 
 export var req = new XMLHttpRequest();
-// export var json = JSON.parse(document.cookie.match('(^|;) ?user_data=([^;]*)(;|$)')[2].split("\\054").join(",").slice(1, -1).split("'").join('"'))

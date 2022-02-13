@@ -17,23 +17,17 @@ function toast() {
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("enter_button").onclick = function () {
         if (surname.value && password.value) {
-            req.open("GET", "enter/" + surname.value + "/" + password.value + "/" + school.value, false);
-            req.send(null);
-
-            const answer = req.responseText.substr(1, req.responseText.length - 2);
-            if (answer === 'Student') {
-                window.location.href = "student_main.html";
-            } else {
-                if (answer === 'Teacher') {
-                    window.location.href = "teacher_main.html";
+            req.open("POST", "enter", true);
+            req.onload = function () {
+                if (req.status === 200) {
+                    sessionStorage.setItem("user", req.responseText)
+                    window.location.href = "diary";
                 } else {
-                    if (answer === 'Admin') {
-                        window.location.href = "admin_main.html";
-                    } else {
-                        toast()
-                    }
+                    console.log(req.response)
+                    toast()
                 }
             }
+            req.send(JSON.stringify({"school": school.value, "surname": surname.value, "password": password.value}));
         } else {
             toast()
         }

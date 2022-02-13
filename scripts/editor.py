@@ -20,10 +20,10 @@ class DB:
         self.__db_diary.kill_base()
 
     def add_people(self):
-        self.__db_peoples.add_data("Мухортов", "0000", 'МАОУ "Лицей №6"', "11А", "Student")
-        self.__db_peoples.add_data("Учитель1", "1111", 'МАОУ "Лицей №6"', "0", "Teacher")
-        self.__db_peoples.add_data("1", "1", 'МАОУ "Лицей №6"', "11А", "Student")
-        self.__db_peoples.add_data("Админ666", "666", 'МАОУ "Лицей №6"', "0", "Admin")
+        self.__db_peoples.add_data("Мухортов", "0000", 'МАОУ "Лицей №6"', "11А", "student")
+        self.__db_peoples.add_data("Учитель1", "1111", 'МАОУ "Лицей №6"', "0", "teacher")
+        self.__db_peoples.add_data("1", "1", 'МАОУ "Лицей №6"', "11А", "student")
+        self.__db_peoples.add_data("Админ", "777", 'МАОУ "Лицей №6"', "0", "admin")
 
     def add_diary(self):
         self.__db_diary.add_data('МАОУ "Лицей №6"', "11А",
@@ -98,7 +98,7 @@ db = DB()
 # db.kill_human()
 # db.kill_diary()
 
-# db.add_people()
-# db.add_diary()
+db.add_people()
+db.add_diary()
 db.print()
 db.disconnect()

@@ -52,7 +52,6 @@ function getSubject(array, mark, id) {
             cancelButtonText: '<i>Закрыть</i>',
             icon: 'info',
             timer: 3500,
-            timerProgressBar: true,
             didOpen: (toast) => {
                 toast.addEventListener('mouseenter', Swal.stopTimer)
                 toast.addEventListener('mouseleave', Swal.resumeTimer)
