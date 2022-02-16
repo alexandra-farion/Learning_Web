@@ -1,4 +1,4 @@
-import {getWeekNumber, niceDate, req} from './base.js';
+import {niceDate, req} from './base.js';
 
 function getTD(text, width) {
     const td = document.createElement('td');
@@ -65,7 +65,7 @@ function getSubject(array, mark, id) {
 function createSchedule(text) {
     let schedule;
     if (text) {
-        schedule = JSON.parse(text).schedule
+        schedule = JSON.parse(text)["schedule"]
     }
 
     for (let i = 0; i <= 5; i++) {
@@ -84,29 +84,35 @@ function createSchedule(text) {
     }
 }
 
-function getSchedule(date) {
-    req.open("GET", "get_schedule/" + school + "/" + clazz + "/" + date, true);
-    req.onload = function (e) {
+function getSchedule(date, clazz, school) {
+    req.open("POST", "get_schedule", true);
+    req.onload = function () {
         if (req.status === 200) {
             createSchedule(req.responseText)
         } else {
             createSchedule(null)
+            console.log(req.response)
         }
     };
-    req.send(null);
+    req.send(JSON.stringify({
+        "class": clazz,
+        "school": school,
+        "week": date + ""
+    }));
 }
 
-const weekNumber = document.querySelector('input[type="week"]');
-weekNumber.value = niceDate(new Date())
+export function runSchedule() {
+    const weekNumber = document.querySelector('input[type="week"]');
+    weekNumber.value = niceDate(new Date())
 
-const cookie = JSON.parse('"' + JSON.parse(document.cookie.match(/Student=(.+?)(;|$)/)[1]) + '"').split(" ")
-const clazz = cookie[cookie.length - 1];
-const school = cookie.slice(1, cookie.length - 1).join(" ")
+    const json = JSON.parse(sessionStorage.getItem("user"))
+    const clazz = json["class"]
+    const school = json["school"]
 
-getSchedule(getWeekNumber(new Date()))
+    function schedule() {
+        getSchedule(parseInt(weekNumber.value.slice(6, weekNumber.value.length)), clazz, school)
+    }
 
-document.addEventListener("DOMContentLoaded", function () {
-    weekNumber.addEventListener("input", function () {
-        getSchedule(parseInt(weekNumber.value.slice(6, weekNumber.value.length)))
-    })
-})
+    schedule()
+    weekNumber.addEventListener("input", schedule)
+}

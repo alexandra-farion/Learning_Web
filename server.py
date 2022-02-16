@@ -49,6 +49,25 @@ async def enter(request: Request):
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Incorrect PASSWORD / NAME")
 
 
+@app.post("/get_schedule")
+async def get_schedule(request: Request):
+    data = await request.json()
+    school = data["school"]
+    clazz = data["class"]
+    week = data["week"]
+    schedule = db_diary.get_data("Schedule", "School='" + school + "' AND Class='" + clazz + "' AND Week=" + week)
+    if schedule:
+        return {"schedule": schedule[0]}
+    print("There's no any schedule!")
+    raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="There's no any schedule!")
+
+
+@app.post("/html")
+async def html(request: Request):
+    data = await request.json()
+    return templates.TemplateResponse(data["html"] + ".html", {"request": request})
+
+
 @app.on_event("startup")
 async def run_server():
     db_peoples.connect()

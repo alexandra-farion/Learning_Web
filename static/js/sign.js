@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
             req.open("POST", "enter", true);
             req.onload = function () {
                 if (req.status === 200) {
+                    sessionStorage.clear()
                     sessionStorage.setItem("user", req.responseText)
                     window.location.href = "diary";
                 } else {

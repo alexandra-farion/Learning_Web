@@ -1,96 +1,50 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="utf-8">
-    <title>Отчёт об успеваемости</title>
-    <link href="emblem.png" rel="shortcut icon">
-</head>
+<tr>
+    <th bgcolor="#DBCFA9" height="40" colspan="4" align="right">
+        <button class="button" id="back">
+            <i>На главную</i>
+        </button>
+</tr>
+<tr>
+    <td>
+        <img align="left" src="{{ url_for('static', path='/img/for_diary.png') }}" alt="">
+    </td>
+    <td>
+        <table align="center" bgcolor="#e1c9b7" border="1" width="100%">
+            <tr>
+                <td bgcolor="#ffffff"><i>Русский язык</i></td>
+                <td align="center" bgcolor="#ffffff"></td>
+                <td align="center" bgcolor="#ffffff"><i>5</i></td>
+                <td align="center" bgcolor="#ffffff"><i>4</i></td>
+                <td align="center" bgcolor="#ffffff"><i>4.5</i></td>
+            <tr>
+                <td bgcolor="#ffffff"><i>Математика</i></td>
+                <td align="center" bgcolor="#ffffff"><i>3</i></td>
+                <td align="center" bgcolor="#ffffff"></td>
+                <td align="center" bgcolor="#ffffff"><i>4</i></td>
+                <td align="center" bgcolor="#ffffff"><i>3.5</i></td>
+            </tr>
+            <tr>
+                <td bgcolor="#ffffff"><i>Музыка</i></td>
+                <td align="center" bgcolor="#ffffff"></td>
+                <td align="center" bgcolor="#ffffff"><i>5</i></td>
+                <td align="center" bgcolor="#ffffff"><i>4</i></td>
+                <td align="center" bgcolor="#ffffff"><i>4.5</i></td>
+            </tr>
+        </table>
+    </td>
+    <th>
+        <img align="right" src="{{ url_for('static', path='/img/for_diary 2.png') }}" alt="">
+    </th>
+</tr>
 
-<style>
-    i {
-        font-size: 15pt;
-    }
+<tr>
+    <th bgcolor="#ffffff" colspan="3" height="10" width="100%"></th>
+</tr>
 
-    .button {
-        background: #F9F2DC;
-        border: #DBCFA9;
-        height: 30px;
-        width: 140px;
-        border-radius: 3px;
-    }
+<tr align="bottom">
+    <th bgcolor="#F9F2DC" colspan="3" height="30" width="100%"></th>
+</tr>
 
-    .button:hover {
-        background-color: #B7A295;
-        color: white;
-    }
-
-</style>
-<body>
-<table align="center" cellpadding="4" cellspacing="0" width="100%">
-    <tr>
-        <th bgcolor="#F9F2DC" colspan="3" height="60" width="100%">
-            <img align="right" src="emblem.png" alt="">
-            <p align="left">
-                <img align="center" src="for_main.png" alt="">
-                <text>
-                    <i>Учебная паутина</i>
-                </text>
-            </p>
-        </th>
-    </tr>
-    <tr>
-        <th align="right" bgcolor="#DBCFA9" colspan="3" height="40" width="100%">
-            <button class="button" onclick="window.location.href='student_main.html'">
-                <i>На главную</i>
-            </button>
-    </tr>
-    <tr>
-        <th height="20"></th>
-    </tr>
-    <tr>
-        <td>
-            <img align="left" src="for_diary.png" alt="">
-        </td>
-        <td>
-            <table align="center" bgcolor="#e1c9b7" border="1" width="100%">
-                <tr>
-                    <td bgcolor="#ffffff"><i>Русский язык</i></td>
-                    <td align="center" bgcolor="#ffffff"></td>
-                    <td align="center" bgcolor="#ffffff"><i>5</i></td>
-                    <td align="center" bgcolor="#ffffff"><i>4</i></td>
-                    <td align="center" bgcolor="#ffffff"><i>4.5</i></td>
-                <tr>
-                    <td bgcolor="#ffffff"><i>Математика</i></td>
-                    <td align="center" bgcolor="#ffffff"><i>3</i></td>
-                    <td align="center" bgcolor="#ffffff"></td>
-                    <td align="center" bgcolor="#ffffff"><i>4</i></td>
-                    <td align="center" bgcolor="#ffffff"><i>3.5</i></td>
-                </tr>
-                <tr>
-                    <td bgcolor="#ffffff"><i>Музыка</i></td>
-                    <td align="center" bgcolor="#ffffff"></td>
-                    <td align="center" bgcolor="#ffffff"><i>5</i></td>
-                    <td align="center" bgcolor="#ffffff"><i>4</i></td>
-                    <td align="center" bgcolor="#ffffff"><i>4.5</i></td>
-                </tr>
-            </table>
-        </td>
-        <th>
-            <img align="right" src="for_diary 2.png" alt="">
-        </th>
-    </tr>
-
-    <tr>
-        <th bgcolor="#ffffff" colspan="3" height="10" width="100%"></th>
-    </tr>
-
-    <tr align="bottom">
-        <th bgcolor="#F9F2DC" colspan="3" height="30" width="100%"></th>
-    </tr>
-
-    <tr align="bottom">
-        <th bgcolor="#DBCFA9" colspan="3" height="15" width="100%"></th>
-    </tr>
-</table>
-</body>
-</html>
+<tr align="bottom">
+    <th bgcolor="#DBCFA9" colspan="3" height="15" width="100%"></th>
+</tr>
