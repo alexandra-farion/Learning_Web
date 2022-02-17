@@ -1,112 +1,109 @@
 # -*- coding: utf-8 -*-
 
-import json
-
-from fastapi import FastAPI, Response, status, HTTPException, Request
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request, HTTPException, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import ORJSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from uvicorn import run
 
 from scripts.data_base import DataBase
 
-app = FastAPI()
-# cache = {}
+app = FastAPI(default_response_class=ORJSONResponse)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
+templates = Jinja2Templates(directory="templates")
 db_peoples = DataBase("peoples", False, ("Surname", "text PRIMARY KEY"), ("Password", "text"),
                       ("School", "text"), ("Class", "text"), ("Character", "text"))
 db_diary = DataBase("diary", False, ("School", "text"), ("Class", "text"), ("Week", "integer"),
                     ("Schedule", "text[][][]"))
+base_schedule = [[["", ""] for i in range(8)] for j in range(6)]
+
+
+@app.get('/')
+async def sign(request: Request):
+    return templates.TemplateResponse("sign_in.html", {"request": request})
+
+
+@app.get('/diary')
+async def sign(request: Request):
+    return templates.TemplateResponse("main_diary.html", {"request": request})
+
+
+@app.post("/enter")
+async def enter(request: Request):
+    data = await request.json()
+    surname = data["surname"]
+    password = data["password"]
+    school = data["school"]
+
+    if db_peoples.contains_data("Surname='" + surname + "' AND Password='" +
+                                password + "' AND School='" + school + "'"):
+        data = db_peoples.get_data("*", "Surname='" + surname + "'")
+
+        return ORJSONResponse(content=jsonable_encoder({
+            "role": [data[5], templates.TemplateResponse(data[5] + "_main.html", {"request": request}).body],
+            "surname": data[1],
+            "school": data[3],
+            "class": data[4]
+        }, ))
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Incorrect PASSWORD / NAME")
+
+
+@app.post("/html")
+async def html(request: Request):
+    data = await request.json()
+    return templates.TemplateResponse(data["html"] + ".html", {"request": request})
+
+
+@app.post("/get_schedule")
+async def get_schedule(request: Request):
+    data = await request.json()
+    schedule = get_schedule_from_bd(data["school"], data["class"], data["week"])
+    if schedule:
+        schedule = schedule[0]
+    else:
+        schedule = base_schedule
+    return {"schedule": schedule}
 
 
 @app.post("/post_schedule")
 async def post_schedule(info: Request):
     data = await info.json()
-    schedule = db_diary.get_data("Schedule", "School='" + data["School"] + "' AND Class='" + data["Class"]
-                                 + "' AND Week=" + str(data["Week"]))
-    new_schedule = data["Schedule"]
+    school = data["school"]
+    clazz = data["class"]
+    week = data["week"]
+    new_schedule = data["schedule"]
 
-    if schedule:
-        old_schedule = schedule["schedule"]
+    old_schedule = get_schedule_from_bd(school, clazz, week)
 
-        for i in range(len(new_schedule)):
-            day = new_schedule[i]
-            old_day = old_schedule[i]
-            for j in range(len(day)):
-                subj = day[j]
-                change = False
-
-                for q in range(len(old_day)):
-                    try:
-                        old_subj = old_day[q][0]
-                        if subj == old_subj:
-                            new_schedule[i][j] = [subj, old_day[q][1]]
-                            old_schedule[i][q][0] = "---+---"
-                            change = True
-                            break
-                    except IndexError:
-                        break
-
-                if not change:
-                    if subj == "":
-                        new_schedule[i][j] = ["", ""]
-                    else:
-                        new_schedule[i][j] = [subj, "Не задано"]
-
+    if old_schedule:
         db_diary.update_data(
-            "Schedule='" + str(new_schedule).replace("]", "}").replace("[", "{").replace("'", '"') + "'",
-            "Class='" + data["Class"] + "' AND School='" + data["School"] + "' AND Week=" + data["Week"])
+            "Schedule='" + join_schedules(old_schedule[0], new_schedule) + "'",
+            "Class='" + clazz + "' AND School='" + school + "' AND Week='" + week + "'")
     else:
         print("Создаю новое расписание")
-        for i in range(len(new_schedule)):
-            day = new_schedule[i]
-            for j in range(len(day)):
-                if new_schedule[i][j] != "":
-                    new_schedule[i][j] = [new_schedule[i][j], "Ничего не задано"]
-                else:
-                    new_schedule[i][j] = ["", ""]
-        db_diary.add_data(data["School"], data["Class"], data["Week"],
-                          str(new_schedule).replace("]", "}").replace("[", "{").replace("'", '"'))
+        db_diary.add_data(school, clazz, int(week), join_schedules(base_schedule, new_schedule))
 
 
-@app.get("/get_schedule/{school}/{clazz}/{week}")
-def get_schedule(school: str, clazz: str, week: str):
-    schedule = db_diary.get_data("Schedule", "School='" + school + "' AND Class='" + clazz + "' AND Week=" + week)
-    if schedule:
-        return {"schedule": schedule[0]}
-    print("There's no any schedule!")
-    raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="There's no any schedule!")
+def get_schedule_from_bd(school, clazz, week):
+    return db_diary.get_data("Schedule", "School='" + school + "' AND Class='" + clazz + "' AND Week=" + week)
 
 
-@app.get("/enter/{surname}/{password}/{school}")
-async def enter(response: Response, surname: str, password: str, school: str):
-    if db_peoples.contains_data("Surname='" + surname + "' AND Password='" +
-                                password + "' AND School='" + school + "'"):
-        data = db_peoples.get_data("*", "Surname='" + surname + "'")
+def join_schedules(old_schedule, new_schedule):
+    for i in range(len(old_schedule)):
+        day = old_schedule[i]
 
-        val = json.dumps(data[1] + " " + data[3] + " " + data[4])[1:-1]
+        for j in range(len(day)):
+            new_subj = new_schedule[i][j]
 
-        response.set_cookie(key=data[5], value=val, httponly=False)
-        return data[5]
+            if day[j][0] != new_subj:
+                arr = [new_subj, "Не задано"]
+                if not new_subj:
+                    arr = ["", ""]
+                old_schedule[i][j] = arr
 
-
-@app.get("/")
-def sign():
-    return file("sign_in.html")
-
-
-@app.get("/{name}")
-def file(name: str):
-    cache = {}
-    if not cache.get(name):
-        match name[-1]:
-            case "l":
-                cache[name] = FileResponse("templates/" + name)
-            case "s":
-                cache[name] = FileResponse("js/" + name)
-            case "g":
-                cache[name] = FileResponse("img/" + name)
-            case "4":
-                cache[name] = FileResponse("video/" + name)
-    return cache[name]
+    return str(old_schedule).replace("]", "}").replace("[", "{").replace("'", '"')
 
 
 @app.on_event("startup")

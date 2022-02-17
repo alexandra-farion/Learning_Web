@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', path='/img/emblem.png') }}">
+    <title>Дневник</title>
+</head>
+
+<style>
+    .button {
+        background: #F9F2DC;
+        border: #DBCFA9;
+        height: 30px;
+        width: 140px;
+        border-radius: 3px;
+    }
+
+    .button:hover {
+        background-color: #B7A295;
+        color: white;
+    }
+
+    .table {
+        width: 100%;
+        border-spacing: 0;
+        border-collapse: separate;
+    }
+
+    td {
+        padding: 4px;
+    }
+
+    i {
+        font-size: 15pt;
+    }
+</style>
+
+<html lang="ru-RU">
+<body>
+<div style="position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000">
+    <table id="table" class="table">
+        <tr>
+            <th bgcolor="#F9F2DC" height="60" colspan="4">
+                <img src="{{ url_for('static', path='/img/emblem.png') }}" align="right" alt="">
+
+                <p align="left">
+                    <img src="{{ url_for('static', path='/img/for_main.png') }}" align="center" alt="">
+                    <i>Учебная паутина</i>
+                </p>
+            </th>
+        </tr>
+    </table>
+</div>
+</body>
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="module" src="{{ url_for('static', path='/js/main_diary.js') }}" charset="utf-8"></script>
+</html>

@@ -13,10 +13,30 @@ export function getWeekNumber(d) {
 export function niceDate(d) {
     let weekNo = getWeekNumber(d);
     if (weekNo < 10) {
-        weekNo = String(0) + String(weekNo)
+        weekNo = 0 + "" + weekNo
     }
-    return String(d.getFullYear()) + "-W" + weekNo;
+    return d.getFullYear() + "-W" + weekNo;
+}
+
+export function setResponseForButton(htmlPage, func) {
+    setFuncForButton(htmlPage, function () {
+        req.open("POST", "html", true);
+        req.onload = function () {
+            if (req.status === 200) {
+                func(req.response)
+                return
+            }
+            console.log(req.response)
+        }
+        req.send(JSON.stringify({"html": htmlPage}));
+    })
+}
+
+export function setFuncForButton(buttonName, func) {
+    const button = document.getElementById(buttonName)
+    if (button) {
+        button.onclick = func
+    }
 }
 
 export var req = new XMLHttpRequest();
-// export var json = JSON.parse(document.cookie.match('(^|;) ?user_data=([^;]*)(;|$)')[2].split("\\054").join(",").slice(1, -1).split("'").join('"'))

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Вход</title>
-    <link rel="shortcut icon" href="emblem.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{{ url_for('static', path='/img/emblem.png') }}">
 </head>
 
 <style>
@@ -46,11 +47,11 @@
     </tr>
     <tr>
         <td bgcolor="#F9F2DC" width="30%" height="550">
-            <img src="for_sign_0.png" align="bottom" alt="">
+            <img src="{{ url_for('static', path='/img/for_sign_0.png') }}" align="bottom" alt="">
         </td>
         <td bgcolor="#DBCFA9" align="center">
-            <img src="for_sign_1.png" alt="">
-            <img src="for_main.png" alt="">
+            <img src="{{ url_for('static', path='/img/for_sign_1.png') }}" alt="">
+            <img src="{{ url_for('static', path='/img/for_main.png') }}" alt="">
             <h2 align="top"><i>Учебная паутина</i></h2>
 
             <p align="left"><i>Регион</i></p>
@@ -101,12 +102,12 @@
         </td>
 
         <td bgcolor="#F9F2DC" width="30%">
-            <img src="for_sign_2.png" align="right" alt="">
+            <img src="{{ url_for('static', path='/img/for_sign_2.png') }}" align="right" alt="">
         </td>
     </tr>
 </table>
 </body>
 
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="sign.js" charset="utf-8"></script>
+<script src="{{ url_for('static', path='/js/sign.js') }}" charset="utf-8"></script>
 </html>

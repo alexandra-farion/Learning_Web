@@ -1,17 +1,17 @@
-import {getWeekNumber, niceDate, req} from './base.js';
+import {niceDate, req} from './base.js';
+import {getSchedule} from './baseSchedule.js';
 
 function setSubject(subject, id) {
     const tr = document.createElement('tr');
     tr.id = id
-    tr.className = "edit"
-    tr.innerHTML = '<td bgcolor="#ffffff"><input type="text" class="text" value="' + subject + '"><br></td>'
+    tr.innerHTML = '<th bgcolor="#ffffff"><input type="text" value="' + subject + '"></th>'
     return tr
 }
 
 function createSchedule(text) {
     let schedule;
     if (text) {
-        schedule = JSON.parse(text).schedule
+        schedule = JSON.parse(text)["schedule"]
     }
 
     for (let i = 0; i <= 5; i++) {
@@ -30,31 +30,22 @@ function createSchedule(text) {
     }
 }
 
-function getSchedule(date) {
-    req.open("GET", "get_schedule/" + school + "/" + classInput.value + "/" + date, true);
-    req.onload = function (e) {
-        if (req.status === 200) {
-            createSchedule(req.responseText)
-        } else {
-            createSchedule(null)
-        }
-    };
-    req.send(null);
-}
+export function runScheduling() {
+    function week() {
+        return parseInt(weekNumber.value.slice(6, weekNumber.value.length)) + ""
+    }
 
-const inputs = document.getElementsByTagName("input")
-const classInput = document.querySelector('input[type="text"]');
-const weekNumber = document.querySelector('input[type="week"]');
-weekNumber.value = niceDate(new Date())
+    const inputs = document.getElementsByTagName("input")
+    const classInput = document.querySelector('input[type="text"]');
+    const weekNumber = document.querySelector('input[type="week"]');
+    weekNumber.value = niceDate(new Date())
 
-const cookie = JSON.parse('"' + JSON.parse(document.cookie.match(/Student=(.+?)(;|$)/)[1]) + '"').split(" ")
-const school = cookie.slice(1, cookie.length - 1).join(" ")
+    const school = JSON.parse(sessionStorage.getItem("user"))["school"]
 
-getSchedule(getWeekNumber(new Date()))
+    getSchedule(week(), classInput.value, school, createSchedule)
 
-document.addEventListener("DOMContentLoaded", function () {
     weekNumber.addEventListener("input", function () {
-        getSchedule(parseInt(weekNumber.value.slice(6, weekNumber.value.length)))
+        getSchedule(week(), classInput.value, school, createSchedule)
     })
     document.getElementById("change").onclick = function () {
         const clazz = classInput.value;
@@ -74,7 +65,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const schedule = [[], [], [], [], [], []];
         let numSubj = 0;
         let day = 0;
-        const week = parseInt(weekNumber.value.slice(6, weekNumber.value.length))
 
         for (let i = 2; i < inputs.length; i++) {
             schedule[day][numSubj] = inputs[i].value
@@ -86,8 +76,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        req.open("POST", "/post_schedule", true);
-        req.onload = function (e) {
+        req.open("POST", "post_schedule", true);
+        req.onload = function () {
             if (req.status === 200) {
                 Swal.fire({
                     title: "Сохранено!",
@@ -98,12 +88,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     position: "top"
                 })
             } else {
-                console.log(req.responseText)
+                console.log(req.response)
             }
-        };
+        }
         req.send(JSON.stringify({
-            "Schedule": [schedule[0], schedule[2], schedule[4], schedule[1], schedule[3], schedule[5]],
-            "Class": clazz.toUpperCase(), "Week": week, "School": school
-        }));
+            "schedule": [schedule[0], schedule[2], schedule[4], schedule[1], schedule[3], schedule[5]],
+            "class": clazz.toUpperCase(),
+            "week": week(),
+            "school": school
+        }))
     }
-});
+}
