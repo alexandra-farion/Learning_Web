@@ -1,6 +1,7 @@
 import {setResponseForButton, setFuncForButton} from './base.js';
 import {runSchedule} from "./schedule.js"
 import {runScheduling} from "./admin_scheduling.js"
+import {runGrading} from "./grading.js"
 
 const mainTable = document.getElementById("table")
 let curPage = sessionStorage.getItem("html")
@@ -57,7 +58,13 @@ function page(html) {
             case "admin":
                 if (document.getElementsByTagName("button").length !== 25) {
                     runScheduling()
+                    return
                 }
         }
+    }
+
+    const schoolsBox = document.getElementById("schools")
+    if (schoolsBox) {
+        runGrading()
     }
 }

@@ -83,11 +83,11 @@ async def post_schedule(info: Request):
             "Class='" + clazz + "' AND School='" + school + "' AND Week='" + week + "'")
     else:
         print("Создаю новое расписание")
-        db_diary.add_data(school, clazz, int(week), join_schedules(base_schedule, new_schedule))
+        db_diary.add_data(school, clazz, week, join_schedules(base_schedule, new_schedule))
 
 
 def get_schedule_from_bd(school, clazz, week):
-    return db_diary.get_data("Schedule", "School='" + school + "' AND Class='" + clazz + "' AND Week=" + week)
+    return db_diary.get_data("Schedule", "School='" + school + "' AND Class='" + clazz + "' AND Week='" + week + "'")
 
 
 def join_schedules(old_schedule, new_schedule):
@@ -107,7 +107,7 @@ def join_schedules(old_schedule, new_schedule):
 
 
 @app.on_event("startup")
-async def run_server():
+def run_server():
     db_peoples.connect()
     db_diary.connect()
 

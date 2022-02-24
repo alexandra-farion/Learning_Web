@@ -90,4 +90,4 @@ class DataBase:
 
     def kill_base(self):
         self.__cursor.execute(self.__drop)
-        print("DB", self.__name, "have dropped")
+        print("DB", self.__name, "has dropped")

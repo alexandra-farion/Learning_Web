@@ -4,10 +4,10 @@ function getDate() {
     return yourDate.toISOString().split('T')[0]
 }
 
-const weekControl = document.querySelector('input[type="date"]');
-weekControl.value = getDate()
+export function runGrading() {
+    const weekControl = document.querySelector('input[type="date"]');
+    weekControl.value = getDate()
 
-document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("save").onclick = function () {
         Swal.fire({
             title: "Сохранено!",
@@ -18,4 +18,4 @@ document.addEventListener("DOMContentLoaded", function () {
             position: "top"
         })
     }
-})
+}

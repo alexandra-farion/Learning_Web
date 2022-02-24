@@ -96,7 +96,7 @@ export function runSchedule() {
     const school = json["school"]
 
     function schedule() {
-        getSchedule(parseInt(weekNumber.value.slice(6, weekNumber.value.length)) + "", clazz, school, createSchedule)
+        getSchedule(weekNumber.value, clazz, school, createSchedule)
     }
 
     schedule()

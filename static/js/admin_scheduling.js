@@ -31,8 +31,8 @@ function createSchedule(text) {
 }
 
 export function runScheduling() {
-    function week() {
-        return parseInt(weekNumber.value.slice(6, weekNumber.value.length)) + ""
+    function schedule() {
+        getSchedule(weekNumber.value, classInput.value, school, createSchedule)
     }
 
     const inputs = document.getElementsByTagName("input")
@@ -42,11 +42,9 @@ export function runScheduling() {
 
     const school = JSON.parse(sessionStorage.getItem("user"))["school"]
 
-    getSchedule(week(), classInput.value, school, createSchedule)
+    schedule()
+    weekNumber.addEventListener("input", schedule)
 
-    weekNumber.addEventListener("input", function () {
-        getSchedule(week(), classInput.value, school, createSchedule)
-    })
     document.getElementById("change").onclick = function () {
         const clazz = classInput.value;
 
@@ -91,10 +89,11 @@ export function runScheduling() {
                 console.log(req.response)
             }
         }
+        console.log(weekNumber.value)
         req.send(JSON.stringify({
             "schedule": [schedule[0], schedule[2], schedule[4], schedule[1], schedule[3], schedule[5]],
             "class": clazz.toUpperCase(),
-            "week": week(),
+            "week": weekNumber.value,
             "school": school
         }))
     }
