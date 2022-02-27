@@ -8,14 +8,23 @@
 </head>
 
 <style>
-    .box {
-        width: 560px;
-        height: 30px;
+    .input {
+        width: 150px;
+        height: 20px;
         border: 1px solid #999;
         font-size: 16px;
-        color: #c09a7f;
-        background-color: #eee;
-        border-radius: 3px;
+        color: #000000;
+        background-color: white;
+        border-radius: 5px;
+    }
+    .box {
+        width: 400px;
+        height: 20px;
+        border: 1px solid #999;
+        font-size: 16px;
+        color: #000000;
+        background-color: white;
+        border-radius: 5px;
     }
 
     .button {
@@ -23,7 +32,7 @@
         border: #DBCFA9;
         height: 40px;
         width: 130px;
-        border-radius: 3px;
+        border-radius: 5px;
     }
 
     .button:hover {
@@ -86,13 +95,13 @@
 
             <i>Логин</i>
             <label for="surname">
-                <input type='text' id="surname" autofocus>
+                <input class="input" type='text' id="surname" autofocus>
             </label>
             <br><br>
 
             <i>Пароль</i>
             <label for="password">
-                <input type='password' id="password">
+                <input class="input" type='password' id="password">
             </label>
             <br><br>
 

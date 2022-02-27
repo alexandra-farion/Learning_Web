@@ -1,12 +1,21 @@
 <style>
+    .input {
+        width: 150px;
+        height: 20px;
+        border: 1px solid #999;
+        font-size: 16px;
+        color: #000000;
+        background-color: white;
+        border-radius: 5px;
+    }
     .box {
         width: 90px;
         height: 20px;
         border: 1px solid #999;
         font-size: 16px;
-        color: #c09a7f;
+        color: #000000;
         background-color: white;
-        border-radius: 3px;
+        border-radius: 5px;
     }
 </style>
 
@@ -32,18 +41,18 @@
                 <td align="center"><i>Вес оценки </i></td>
             </tr>
             <tr>
-                <td><label><input type='text'></label></td>
-                <td><label><input type='date'></label></td>
-                <td><label><input type='text'></label></td>
+                <td><label><input class="input" type='text'></label></td>
+                <td><label><input class="input" type='date'></label></td>
+                <td><label><input class="input" type='text'></label></td>
 
                 <td align="center">
                     <label for="schools">
                         <select class="box" id="schools">
-                            <option>6</option>
-                            <option>7</option>
-                            <option>8</option>
-                            <option>9</option>
-                            <option>10</option>
+                            <option align="center">6</option>
+                            <option align="center">7</option>
+                            <option align="center">8</option>
+                            <option align="center">9</option>
+                            <option align="center">10</option>
                         </select>
                     </label>
                 </td>
@@ -69,7 +78,7 @@
                 <td><i>Петров. А. С.</i></td>
                 <td>
                     <label>
-                        <input type='text'>
+                        <input class="input"  type='text'>
                     </label>
                 </td>
             </tr>
@@ -77,7 +86,7 @@
                 <td><i>Киселёва Ю. К.</i></td>
                 <td>
                     <label>
-                        <input type='text'>
+                        <input class="input" type='text'>
                     </label>
                 </td>
             </tr>
