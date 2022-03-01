@@ -8,7 +8,7 @@ class DataBase:
         self.__cursor = None
         self.__create = """CREATE TABLE IF NOT EXISTS """ + name + """ (id serial, """
         self.__insert = ["INSERT", "INTO", name]
-        self.__delete = "DELETE FROM " + name + " WHERE id="
+        self.__delete = "DELETE FROM " + name + " WHERE "
         self.__select = "SELECT * FROM " + name
         self.__drop = "DROP TABLE " + name
         self.__update = "UPDATE " + name + " SET "
@@ -42,9 +42,9 @@ class DataBase:
 
         self.__try_catch(f)
 
-    def delete_data(self, index: int):
+    def delete_data(self, condition: str):
         def f():
-            self.__cursor.execute(self.__delete + str(index))
+            self.__cursor.execute(self.__delete + condition)
 
         self.__try_catch(f)
 
@@ -64,7 +64,11 @@ class DataBase:
     def get_data(self, what: str, where: str):
         def f():
             self.__cursor.execute("SELECT " + what + " FROM " + self.__name + " WHERE " + where)
-            return self.__cursor.fetchall()[-1]
+
+            data = self.__cursor.fetchall()
+            if len(data) == 0:
+                return [None]
+            return data
 
         return self.__try_catch(f)
 
@@ -90,4 +94,4 @@ class DataBase:
 
     def kill_base(self):
         self.__cursor.execute(self.__drop)
-        print("DB", self.__name, "have dropped")
+        print("DB", self.__name, "has dropped")

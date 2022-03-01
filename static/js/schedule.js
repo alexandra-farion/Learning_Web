@@ -1,43 +1,7 @@
-import {niceDate, req} from './base.js';
+import {niceDate, str} from './base.js';
+import {getSchedule} from './baseSchedule.js';
 
-function getTD(text, width) {
-    const td = document.createElement('td');
-    td.className = "row"
-    td.width = width
-
-    let clazz = "containerMark";
-    if (width === "150") {
-        clazz = "containerSubj"
-    } else {
-        if (width === "250") {
-            clazz = "containerDesc"
-        }
-    }
-
-    const div = document.createElement('div');
-    div.className = clazz
-    div.innerHTML = '&nbsp;' + text
-
-    td.append(div)
-    return td
-}
-
-function getSubject(array, mark, id) {
-    const tr = document.createElement('tr');
-
-    tr.append(getTD(array[0], "150"))
-    tr.append(getTD(array[1], "250"))
-    tr.append(getTD(mark, "30"))
-    tr.id = id
-    let task = "";
-    if (array[1]) {
-        task = '<b>Задание: </b> ' + array[1]
-    }
-    let markT = "";
-    if (mark) {
-        markT = '<br> <b>Оценка: </b> ' + mark + "</br>"
-    }
-
+function setSwal(tr, title, html) {
     tr.onclick = function () {
         Swal.mixin({
             customClass: {
@@ -45,8 +9,8 @@ function getSubject(array, mark, id) {
             },
             buttonsStyling: false
         }).fire({
-            title: array[0],
-            html: task + markT,
+            title: title,
+            html: html,
             showCancelButton: true,
             showConfirmButton: false,
             cancelButtonText: '<i>Закрыть</i>',
@@ -58,59 +22,91 @@ function getSubject(array, mark, id) {
             }
         })
         Swal.stopTimer()
-    };
+    }
+}
+
+function getSubject(array, mark, id) {
+    const subject = array[0]
+    const homework = array[1]
+    const tr = document.createElement('tr');
+    tr.id = id
+
+    let task = "";
+    if (homework) {
+        task = `<b>Задание: </b> ${homework}</br>`
+    }
+
+    let markT = "";
+    if (mark) {
+        markT = `<br><b>Оценка: </b> ${mark[0]}</br>
+                     <b>По теме: </b> ${mark[2]}</br>
+                     <b>С весом: </b> ${mark[1]}</br>`
+    } else {
+        mark = [""]
+    }
+    tr.insertAdjacentHTML("afterbegin", `<td class="row">
+                                                        <div class="containerSubj">${subject}</div>
+                                                      </td>
+                                                      <td class="row">
+                                                        <div class="containerDesc">${homework}</div>
+                                                      </td>
+                                                      <td class="row" align="center">
+                                                        <div class="containerMark">${mark[0]}</div>
+                                                      </td>`)
+
+    if (subject) {
+        setSwal(tr, subject, task + markT)
+    }
     return tr
 }
 
-function createSchedule(text) {
-    let schedule;
-    if (text) {
-        schedule = JSON.parse(text)["schedule"]
-    }
+function createSchedule(jsonSchedule, marks) {
+    const schedule = JSON.parse(jsonSchedule)["schedule"]
 
     for (let i = 0; i <= 5; i++) {
+        const subjects = []
+        const markData = marks[i]
+        for (let j = 0; j < markData.length; j++) {
+            subjects.push(markData[j][3])
+        }
+
         for (let j = 0; j <= 7; j++) {
-            const old = document.getElementById(i + "" + j)
+            const old = document.getElementById(str(i, j))
             if (old) {
                 old.remove()
             }
 
-            let line = ["", "", ""];
-            if (text) {
-                line = schedule[i][j]
+            const line = schedule[i][j]
+            const ind = subjects.indexOf(line[0])
+            let mark = ""
+
+            if (ind !== -1 && subjects.length > 0) {
+                mark = [markData[ind][0], markData[ind][1], markData[ind][2]]
+                delete subjects[ind]
             }
-            document.getElementById(i + "").append(getSubject(line, "", i + "" + j))
+            document.getElementById(str(i)).append(getSubject(line, mark, str(i, j)))
         }
     }
 }
 
-function getSchedule(date, clazz, school) {
-    req.open("POST", "get_schedule", true);
-    req.onload = function () {
-        if (req.status === 200) {
-            createSchedule(req.responseText)
-        } else {
-            createSchedule(null)
-            console.log(req.response)
-        }
-    };
-    req.send(JSON.stringify({
-        "class": clazz,
-        "school": school,
-        "week": date + ""
-    }));
-}
-
-export function runSchedule() {
-    const weekNumber = document.querySelector('input[type="week"]');
+export function runSchedule(clazz, school, nickname) {
+    const req = new XMLHttpRequest()
+    const weekNumber = document.querySelector('input[type="week"]')
     weekNumber.value = niceDate(new Date())
 
-    const json = JSON.parse(sessionStorage.getItem("user"))
-    const clazz = json["class"]
-    const school = json["school"]
-
     function schedule() {
-        getSchedule(parseInt(weekNumber.value.slice(6, weekNumber.value.length)), clazz, school)
+        req.open("POST", "get_marks", true)
+        req.onload = function () {
+            if (req.status === 200) {
+                getSchedule(weekNumber.value, clazz, school, createSchedule, JSON.parse(req.responseText)["marks"])
+            } else {
+                console.log(req.response)
+            }
+        }
+        req.send(JSON.stringify({
+            "nickname": nickname,
+            "week": weekNumber.value
+        }))
     }
 
     schedule()
