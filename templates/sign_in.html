@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Вход</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="{{ url_for('static', path='/img/emblem.png') }}">
 </head>
 
 <style>
-    .input {
-        width: 150px;
+    select {
+        width: 400px;
         height: 20px;
         border: 1px solid #999;
         font-size: 16px;
@@ -17,11 +16,12 @@
         background-color: white;
         border-radius: 5px;
     }
-    .box {
-        width: 400px;
+
+    input {
+        width: 150px;
         height: 20px;
         border: 1px solid #999;
-        font-size: 16px;
+        font-size: 15px;
         color: #000000;
         background-color: white;
         border-radius: 5px;
@@ -65,7 +65,7 @@
 
             <p align="left"><i>Регион</i></p>
             <label>
-                <select class="box">
+                <select>
                     <option>Челябинская область</option>
                     <option>Калининградская область</option>
                     <option>Омская область</option>
@@ -75,7 +75,7 @@
 
             <p align="left"><i>Город</i></p>
             <label>
-                <select class="box">
+                <select>
                     <option>г. Миасс</option>
                     <option>г. Озёрск</option>
                     <option>г. Снежинск</option>
@@ -85,7 +85,7 @@
 
             <p align="left"><i>Образовательная организация</i></p>
             <label for="schools">
-                <select class="box" id="schools">
+                <select id="schools">
                     <option>МАОУ "Лицей №6"</option>
                     <option>Школа №9</option>
                     <option>Гимназия №8</option>
@@ -95,13 +95,13 @@
 
             <i>Логин</i>
             <label for="surname">
-                <input class="input" type='text' id="surname" autofocus>
+                <input type='text' id="surname" autofocus>
             </label>
             <br><br>
 
             <i>Пароль</i>
             <label for="password">
-                <input class="input" type='password' id="password">
+                <input type='password' id="password">
             </label>
             <br><br>
 

@@ -1,126 +1,171 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from data_base import DataBase
+from postgresgl import *
 
 
 class DB:
     def __init__(self):
-        self.__db_diary = DataBase("diary", False, ("School", "text"), ("Class", "text"), ("Week", "text"),
-                                   ("Schedule", "text[][][]"))
-        self.__db_diary.connect()
-        self.__db_peoples = DataBase("peoples", False, ("Surname", "text PRIMARY KEY"), ("Password", "text"),
-                                     ("School", "text"), ("Class", "text"), ("Character", "text"))
-        self.__db_peoples.connect()
-        self.__db_marks = DataBase("marks", False, ("Surname", "text"), ("Date", "text"), ("Position", "integer"),
-                                   ("Weight", "integer"), ("Value", "integer"))
-        self.__db_marks.connect()
+        async def i():
+            async with await connect() as connection:
+                async with connection.cursor() as cursor:
+                    await cursor.execute("""CREATE TABLE IF NOT EXISTS diary
+                                            (school TEXT, class TEXT, week TEXT, schedule TEXT[][][]);
 
-    def kill_human(self):
-        self.__db_peoples.kill_base()
+                                            CREATE TABLE IF NOT EXISTS peoples
+                                            (nickname TEXT PRIMARY KEY, name TEXT, password TEXT, school TEXT, 
+                                            character TEXT, class TEXT, subject TEXT);
 
-    def kill_diary(self):
-        self.__db_diary.kill_base()
+                                            CREATE TABLE IF NOT EXISTS marks
+                                            (nickname TEXT, date TEXT, weight INTEGER, value INTEGER, 
+                                            theme TEXT, subject TEXT);
+                                        """)
 
-    def kill_marks(self):
-        self.__db_marks.kill_base()
+        asyncio.run(i())
 
-    def add_people(self):
-        self.__db_peoples.add_data("Мухортов", "0000", 'МАОУ "Лицей №6"', "11А", "student")
-        self.__db_peoples.add_data("Учитель1", "1111", 'МАОУ "Лицей №6"', "0", "teacher")
-        self.__db_peoples.add_data("1", "1", 'МАОУ "Лицей №6"', "11А", "student")
-        self.__db_peoples.add_data("Админ", "777", 'МАОУ "Лицей №6"', "0", "admin")
+    async def __kill(self, name):
+        async with await connect() as connection:
+            async with connection.cursor() as cursor:
+                await cursor.execute(f"DROP TABLE {name}")
+                print(f"DB {name} dropped")
 
-    def add_diary(self):
+    async def kill_human(self):
+        await self.__kill("peoples")
+
+    async def kill_diary(self):
+        await self.__kill("diary")
+
+    async def kill_marks(self):
+        await self.__kill("marks")
+
+    async def add_people(self):
+        async with await connect() as connection:
+            async with connection.cursor() as cursor:
+                with open("students.csv", encoding='utf-8') as file:
+                    arr = file.readlines()
+                    arr.reverse()
+
+                    for i in range(len(arr) - 1):
+                        student = arr[i][:-1]
+                        await self.__add_people(cursor, (student.split()[0], student, "0000", 'МАОУ "Лицей №6"',
+                                                         "student", "11А", "E"))
+
+                    student = arr[-1][1:-1]
+                    await self.__add_people(cursor, (student.split()[0], student, "0000", 'МАОУ "Лицей №6"',
+                                                     "student", "11А", "E"))
+
+                    await self.__add_people(cursor, ("Учитель1", "Перегудова Елена Германовна", "1111",
+                                                     'МАОУ "Лицей №6"', "teacher", "E", "Математика"))
+                    await self.__add_people(cursor, ("Админ", "Фокина Елена Валерьевна", "777", 'МАОУ "Лицей №6"',
+                                                     "admin", "E", "Информатика"))
+
+    async def __add_people(self, cursor, data: tuple):
+        await cursor.execute("INSERT INTO peoples VALUES (%s, %s, %s, %s, %s, %s, %s)", data)
+
+    async def add_diary(self):
         date = datetime.date.today().isocalendar()
         week = str(date[1])
         if len(week) == 1:
             week = "0" + week
-        self.__db_diary.add_data('МАОУ "Лицей №6"', "11А",
-                                 str(date[0]) + "-W" + week,
-                                 '{'
-                                 '{{"Информатика", "§30"}, '
-                                 '{"Информатика", "§31"}, '
-                                 '{"Химия", "параграф 14 упр. 2-4"}, '
-                                 '{"Математика", "вариант 2, часть 2 № 12, 14, 15, 17 (Ященко И.В.)"}, '
-                                 '{"Математика", ""}, '
-                                 '{"Литература", ""}, '
-                                 '{"Литература", ""}, '
-                                 '{"Спецкурс по математике", ""}}, '
 
-                                 '{{"Математика", "п. 61, 62, 63, № 555, 558, 568"}, '
-                                 '{"Математика", ""}, '
-                                 '{"История", "принести 3 часть учебника Истории России"}, '
-                                 '{"Физика", ""}, '
-                                 '{"Физика", ""}, '
-                                 '{"", ""}, '
-                                 '{"", ""}, '
-                                 '{"", ""}}, '
+        async with await connect() as connection:
+            async with connection.cursor() as cursor:
+                await cursor.execute("INSERT INTO diary VALUES (%s, %s, %s, %s)",
+                                     ('МАОУ "Лицей №6"', "11А", f"{date[0]}-W{week}",
+                                      [
+                                          [["Информатика", "§30"],
+                                           ["Информатика", "§31"],
+                                           ["Химия", "параграф 14 упр. 2-4"],
+                                           ["Математика", "вариант 2, часть 2 № 12, 14, 15, 17 (Ященко И.В.)"],
+                                           ["Математика", ""],
+                                           ["Литература", ""],
+                                           ["Литература", ""],
+                                           ["Спецкурс по математике", ""]],
 
-                                 '{{"", ""}, '
-                                 '{"ОБЖ", "Правовые основы военной службы"}, '
-                                 '{"Обществознание", "§31"}, '
-                                 '{"Физ-ра", "параграф 14 упр. 2-4"}, '
-                                 '{"Литература", ""}, '
-                                 '{"Английский", "стр 63 № В наизусть"}, '
-                                 '{"Физика", ""}, '
-                                 '{"", ""}}, '
+                                          [["Математика", "п. 61, 62, 63, № 555, 558, 568"],
+                                           ["Математика", ""],
+                                           ["История", "принести 3 часть учебника Истории России"],
+                                           ["Физика", ""],
+                                           ["Физика", ""],
+                                           ["", ""],
+                                           ["", ""],
+                                           ["", ""]],
 
-                                 '{{"Математика", ""}, '
-                                 '{"Математика", ""}, '
-                                 '{"Физ-ра", ""}, '
-                                 '{"Английский", ""}, '
-                                 '{"Проект", "Записи в тетради"}, '
-                                 '{"Информатика", ""}, '
-                                 '{"Информатика", ""}, '
-                                 '{"", ""}}, '
+                                          [["", ""],
+                                           ["ОБЖ", "Правовые основы военной службы"],
+                                           ["Обществознание", "§31"],
+                                           ["Физ-ра", "параграф 14 упр. 2-4"],
+                                           ["Литература", ""],
+                                           ["Английский", "стр 63 № В наизусть"],
+                                           ["Физика", ""],
+                                           ["", ""]],
 
-                                 '{{"Математика", ""}, '
-                                 '{"Математика", ""}, '
-                                 '{"Физика", ""}, '
-                                 '{"Английский", ""}, '
-                                 '{"Физика", ""}, '
-                                 '{"Русский яз", ""}, '
-                                 '{"Родной...", ""}, '
-                                 '{"", ""}}, '
+                                          [["Математика", ""],
+                                           ["Математика", ""],
+                                           ["Физ-ра", ""],
+                                           ["Английский", ""],
+                                           ["Проект", "Записи в тетради"],
+                                           ["Информатика", ""],
+                                           ["Информатика", ""],
+                                           ["", ""]],
 
-                                 '{{"Шахматы", ""}, '
-                                 '{"История", ""}, '
-                                 '{"География", ""}, '
-                                 '{"Биология", "§17, 18"}, '
-                                 '{"Общество", ""}, '
-                                 '{"", ""}, '
-                                 '{"", ""}, '
-                                 '{"", ""}} '
-                                 '}')
+                                          [["Математика", ""],
+                                           ["Математика", ""],
+                                           ["Физика", ""],
+                                           ["Английский", ""],
+                                           ["Физика", ""],
+                                           ["Русский яз", ""],
+                                           ["Родной...", ""],
+                                           ["", ""]],
 
-    def add_marks(self):
-        self.__db_marks.add_data("Мухортов", str(datetime.date.today()), 1, 10, 2)
+                                          [["Шахматы", ""],
+                                           ["История", ""],
+                                           ["География", ""],
+                                           ["Биология", "§17, 18"],
+                                           ["Общество", ""],
+                                           ["", ""],
+                                           ["", ""],
+                                           ["", ""]]
+                                      ]))
 
     def add_all(self):
-        self.add_people()
-        self.add_diary()
-        self.add_marks()
+        asyncio.run(self.add_people())
+        asyncio.run(self.add_diary())
 
     def kill_all(self):
-        self.kill_diary()
-        self.kill_human()
-        self.kill_marks()
+        asyncio.run(self.kill_diary())
+        asyncio.run(self.kill_human())
+        asyncio.run(self.kill_marks())
+
+    async def __print(self, cursor, name):
+        await cursor.execute(f"SELECT * FROM {name}")
+        print(f"---------------{name}")
+        for i in await cursor.fetchall():
+            print(i)
+        print("    ")
 
     def print(self):
-        self.__db_diary.print()
-        self.__db_peoples.print()
-        self.__db_marks.print()
+        async def p():
+            async with await connect() as connection:
+                async with connection.cursor() as cursor:
+                    await self.__print(cursor, "diary")
+                    await self.__print(cursor, "peoples")
+                    await self.__print(cursor, "marks")
 
-    def disconnect(self):
-        self.__db_diary.disconnect()
-        self.__db_peoples.disconnect()
-        self.__db_marks.disconnect()
+        asyncio.run(p())
 
 
 db = DB()
-
 # db.kill_all()
 # db.add_all()
 db.print()
-db.disconnect()
+# db.kill_marks()
+
+# with open("teachers.csv", encoding='utf-8') as file:
+#     arr = file.readlines()
+#     print(arr)
+#     teachers = [arr[0][1:-1].split(";")]
+#     for i in range(1, len(arr)):
+#         teachers.append(arr[i][:-1].split(";"))
+#
+#     print(teachers)

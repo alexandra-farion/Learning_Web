@@ -4,16 +4,11 @@ import {getSchedule} from './baseSchedule.js';
 function setSubject(subject, id) {
     const tr = document.createElement('tr');
     tr.id = id
-    tr.innerHTML = '<th bgcolor="#ffffff"><input type="text" value="' + subject + '"></th>'
+    tr.innerHTML = '<th style="border: #F9F2DC"><input type="text" value="' + subject + '"></th>'
     return tr
 }
 
-function createSchedule(text) {
-    let schedule;
-    if (text) {
-        schedule = JSON.parse(text)["schedule"]
-    }
-
+function createSchedule(schedule) {
     for (let i = 0; i <= 5; i++) {
         for (let j = 0; j <= 7; j++) {
             const old = document.getElementById(i + "" + j)
@@ -21,16 +16,13 @@ function createSchedule(text) {
                 old.remove()
             }
 
-            let subject = "";
-            if (text) {
-                subject = schedule[i][j][0]
-            }
+            const subject = schedule[i][j][0]
             document.getElementById(i + "").append(setSubject(subject, i + "" + j))
         }
     }
 }
 
-export function runScheduling() {
+export function runScheduling(school) {
     function schedule() {
         getSchedule(weekNumber.value, classInput.value, school, createSchedule)
     }
@@ -39,8 +31,6 @@ export function runScheduling() {
     const classInput = document.querySelector('input[type="text"]');
     const weekNumber = document.querySelector('input[type="week"]');
     weekNumber.value = niceDate(new Date())
-
-    const school = JSON.parse(sessionStorage.getItem("user"))["school"]
 
     schedule()
     weekNumber.addEventListener("input", schedule)
@@ -89,7 +79,6 @@ export function runScheduling() {
                 console.log(req.response)
             }
         }
-        console.log(weekNumber.value)
         req.send(JSON.stringify({
             "schedule": [schedule[0], schedule[2], schedule[4], schedule[1], schedule[3], schedule[5]],
             "class": clazz.toUpperCase(),

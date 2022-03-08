@@ -2,17 +2,22 @@ import {setResponseForButton, setFuncForButton} from './base.js';
 import {runSchedule} from "./schedule.js"
 import {runScheduling} from "./admin_scheduling.js"
 import {runGrading} from "./grading.js"
+import {runMarks} from "./student_marks.js"
 
 const mainTable = document.getElementById("table")
 let curPage = sessionStorage.getItem("html")
 
 const json = JSON.parse(sessionStorage.getItem("user"))
-let role = ""
+const clazz = json["class"]
+const school = json["school"]
+const nickname = json["nickname"]
+const subject = json["subject"]
+let htmlPage = ""
 
 if (json) {
-    role = json["role"][1]
+    htmlPage = json["character"][1]
     if (!curPage) {
-        curPage = role
+        curPage = htmlPage
     }
     page(curPage)
 } else {
@@ -40,7 +45,7 @@ function page(html) {
 
     setResponseForButton("ads", page)
     setFuncForButton("back", () => {
-        page(role)
+        page(htmlPage)
     })
 
     setResponseForButton("student_marks", page)
@@ -51,20 +56,25 @@ function page(html) {
     setResponseForButton("teacher_grading", page)
 
     if (document.getElementsByTagName("table").length === 8) {
-        switch (json["role"][0]) {
+        switch (json["character"][0]) {
             case "student":
-                runSchedule()
+                runSchedule(clazz, school, nickname)
                 return
             case "admin":
                 if (document.getElementsByTagName("button").length !== 25) {
-                    runScheduling()
+                    runScheduling(school)
                     return
                 }
         }
     }
 
-    const schoolsBox = document.getElementById("schools")
-    if (schoolsBox) {
-        runGrading()
+    const markWeight = document.getElementById("weight")
+    if (markWeight) {
+        runGrading(school, subject)
+    }
+
+    const tableMarkReport = document.getElementById("markTable")
+    if (tableMarkReport) {
+        runMarks(nickname)
     }
 }

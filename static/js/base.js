@@ -18,6 +18,14 @@ export function niceDate(d) {
     return d.getFullYear() + "-W" + weekNo;
 }
 
+export function str() {
+    let string = ""
+    for (let i = 0; i < arguments.length; i++) {
+        string += arguments[i]
+    }
+    return string
+}
+
 export function setResponseForButton(htmlPage, func) {
     setFuncForButton(htmlPage, function () {
         req.open("POST", "html", true);
@@ -39,4 +47,4 @@ export function setFuncForButton(buttonName, func) {
     }
 }
 
-export var req = new XMLHttpRequest();
+export var req = new XMLHttpRequest()
