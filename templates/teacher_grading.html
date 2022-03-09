@@ -9,7 +9,7 @@
         border-radius: 5px;
     }
 
-    .box {
+    select {
         width: 90px;
         height: 20px;
         border: 1px solid #999;
@@ -35,16 +35,16 @@
     </th>
     <td>
         <table align="center" bgcolor="#dac8af">
-            <tr>
+            <tr id="titles">
                 <td align="center"><i>Класс</i></td>
                 <td align="center"><i>Дата</i></td>
                 <td align="center"><i>Название работы</i></td>
-                <td align="center"><i>Вес оценки </i></td>
+                <td align="center"><i>Вес оценки</i></td>
             </tr>
-            <tr>
+            <tr id="inputs">
                 <td>
                     <label for="class">
-                        <select class="box" id="class">
+                        <select id="class">
                             <option>11А</option>
                             <option>11Б</option>
                             <option>10А</option>
@@ -57,7 +57,7 @@
                 <td><label><input type='text'></label></td>
                 <td align="center">
                     <label for="weight">
-                        <select class="box" id="weight">
+                        <select id="weight">
                             <option>6</option>
                             <option>7</option>
                             <option>8</option>

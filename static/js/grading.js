@@ -17,7 +17,7 @@ function swal(title, icon) {
     })
 }
 
-function postData(text, weight, date, subject) {
+function postData(text, weight, date) {
     const req = new XMLHttpRequest()
     const marksAndStudents = getMarksAndStudents()
     const json = {}
@@ -35,14 +35,14 @@ function postData(text, weight, date, subject) {
     json["weight"] = weight
     json["theme"] = text
     json["date"] = date
-    json["subject"] = subject
+    json["subject"] = currentSubject
 
     req.open("POST", "post_marks", true);
     req.onload = null;
     req.send(JSON.stringify(json))
 }
 
-function getStudents(clazz, school, date, subject, workName, markWeight) {
+function getStudents(clazz, school, date, workName, markWeight) {
     const req = new XMLHttpRequest()
     req.open("POST", "get_students", true);
     req.onload = function () {
@@ -66,7 +66,7 @@ function getStudents(clazz, school, date, subject, workName, markWeight) {
         "class": clazz,
         "school": school,
         "date": date,
-        "subject": subject
+        "subject": currentSubject
     }))
 }
 
@@ -125,11 +125,38 @@ function getMarksAndStudents() {
     }
 }
 
-let studentsNicks
+function addSubjectSelect(subjects, func) {
+    if (subjects.length > 1) {
+        let selectSubjects = document.getElementById("subject")
 
-export function runGrading(school, subject) {
+        if (!selectSubjects) {
+            document.getElementById("titles").insertAdjacentHTML("beforeend", `<td align="center"><i>Предмет</i></td>`)
+
+            let selectSubjectsHTML = `<td align="center">
+                                            <label for="subject">
+                                                <select id="subject" style="width: 100%">`
+            for (let i = 0; i < subjects.length; i++) {
+                selectSubjectsHTML += `<option>${subjects[i]}</option>`
+            }
+
+            document.getElementById("inputs").insertAdjacentHTML("beforeend", selectSubjectsHTML + `</select></label></td>`)
+            selectSubjects = document.getElementById("subject")
+            selectSubjects.addEventListener("input", () => {
+                currentSubject = selectSubjects.value
+                func()
+            })
+        }
+    }
+
+    currentSubject = subjects[0]
+}
+
+let studentsNicks
+let currentSubject
+
+export function runGrading(school, subjects) {
     function students() {
-        getStudents(classInput.value, school, dateInput.value, subject, workName, markWeight)
+        getStudents(classInput.value, school, dateInput.value, workName, markWeight)
     }
 
     const classInput = document.getElementById("class")
@@ -137,8 +164,10 @@ export function runGrading(school, subject) {
     const workName = document.querySelector('input[type="text"]')
     const markWeight = document.getElementById("weight")
 
+    addSubjectSelect(subjects, students)
+
     document.getElementById("save").onclick = function () {
-        postData(workName.value, markWeight.value, dateInput.value, subject)
+        postData(workName.value, markWeight.value, dateInput.value)
     }
 
     classInput.addEventListener("input", students)

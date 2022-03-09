@@ -14,7 +14,7 @@ class DB:
 
                                             CREATE TABLE IF NOT EXISTS peoples
                                             (nickname TEXT PRIMARY KEY, name TEXT, password TEXT, school TEXT, 
-                                            character TEXT, class TEXT, subject TEXT);
+                                            character TEXT, class TEXT, subject TEXT[]);
 
                                             CREATE TABLE IF NOT EXISTS marks
                                             (nickname TEXT, date TEXT, weight INTEGER, value INTEGER, 
@@ -48,16 +48,21 @@ class DB:
                     for i in range(len(arr) - 1):
                         student = arr[i][:-1]
                         await self.__add_people(cursor, (student.split()[0], student, "0000", 'МАОУ "Лицей №6"',
-                                                         "student", "11А", "E"))
+                                                         "student", "11А", [None]))
 
                     student = arr[-1][1:-1]
                     await self.__add_people(cursor, (student.split()[0], student, "0000", 'МАОУ "Лицей №6"',
-                                                     "student", "11А", "E"))
+                                                     "student", "11А", [None]))
 
-                    await self.__add_people(cursor, ("Учитель1", "Перегудова Елена Германовна", "1111",
-                                                     'МАОУ "Лицей №6"', "teacher", "E", "Математика"))
-                    await self.__add_people(cursor, ("Админ", "Фокина Елена Валерьевна", "777", 'МАОУ "Лицей №6"',
-                                                     "admin", "E", "Информатика"))
+                    with open("teachers.csv", encoding='utf-8') as file:
+                        arr = file.readlines()
+                        line = arr[0][1:-1].split(";")
+                        await self.__add_people(cursor, (line[0].split()[0], line[0], "1111",
+                                                         'МАОУ "Лицей №6"', "teacher", None, line[1::]))
+                        for i in range(1, len(arr)):
+                            line = arr[i][:-1].split(";")
+                            await self.__add_people(cursor, (line[0].split()[0], line[0], "1111",
+                                                             'МАОУ "Лицей №6"', "teacher", None, line[1::]))
 
     async def __add_people(self, cursor, data: tuple):
         await cursor.execute("INSERT INTO peoples VALUES (%s, %s, %s, %s, %s, %s, %s)", data)
@@ -154,18 +159,22 @@ class DB:
 
         asyncio.run(p())
 
+    def set_admin(self, name):
+        async def s():
+            async with await connect() as connection:
+                async with connection.cursor() as cursor:
+                    await cursor.execute(f"""UPDATE peoples
+                                            SET character = 'admin'
+                                            WHERE name = '{name}'
+                                        """)
+
+        asyncio.run(s())
+
 
 db = DB()
 # db.kill_all()
 # db.add_all()
+# db.set_admin("Фокина Елена Валерьевна")
+# db.set_admin("Журило Лия Владимировна")
 db.print()
 # db.kill_marks()
-
-# with open("teachers.csv", encoding='utf-8') as file:
-#     arr = file.readlines()
-#     print(arr)
-#     teachers = [arr[0][1:-1].split(";")]
-#     for i in range(1, len(arr)):
-#         teachers.append(arr[i][:-1].split(";"))
-#
-#     print(teachers)

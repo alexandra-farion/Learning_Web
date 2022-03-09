@@ -11,7 +11,7 @@ const json = JSON.parse(sessionStorage.getItem("user"))
 const clazz = json["class"]
 const school = json["school"]
 const nickname = json["nickname"]
-const subject = json["subject"]
+const subjects = json["subject"]
 let htmlPage = ""
 
 if (json) {
@@ -70,7 +70,7 @@ function page(html) {
 
     const markWeight = document.getElementById("weight")
     if (markWeight) {
-        runGrading(school, subject)
+        runGrading(school, subjects)
     }
 
     const tableMarkReport = document.getElementById("markTable")

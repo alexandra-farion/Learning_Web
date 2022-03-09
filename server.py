@@ -139,8 +139,8 @@ async def get_students(info: Request):
                 student = student[0]
                 await cursor.execute(f"""SELECT value
                                         FROM marks
-                                        WHERE Date='{date}' AND Nickname='{student}' AND Subject='{subject}'
-                                        """)
+                                        WHERE Date='{date}' AND Nickname='{student}' AND Subject=%s
+                                        """, (subject, ))
                 mark = await cursor.fetchone()
                 if mark:
                     if len(theme) == 0:
@@ -167,17 +167,17 @@ async def post_marks(info: Request):
     async with await connect() as connection:
         async with connection.cursor() as cursor:
             for nickname, mark in data["marks"]:
-                condition = f"WHERE Nickname='{nickname}' AND Date='{date}' AND Subject='{subject}'"
+                condition = f"WHERE Nickname='{nickname}' AND Date='{date}' AND Subject=%s"
 
-                await cursor.execute(f"SELECT EXISTS (SELECT 100 FROM marks {condition})")
+                await cursor.execute(f"SELECT EXISTS (SELECT 100 FROM marks {condition})", (subject, ))
                 if (await cursor.fetchone())[0]:
                     if mark != 0:
                         await cursor.execute(f"""UPDATE marks 
                                                 SET Value={mark}, Theme='{theme}', Weight={weight} 
                                                 {condition}
-                                                """)
+                                                """, (subject, ))
                     else:
-                        await cursor.execute(f"DELETE FROM marks {condition}")
+                        await cursor.execute(f"DELETE FROM marks {condition}", (subject, ))
                 elif mark != 0:
                     await cursor.execute("""INSERT INTO marks
                                             VALUES (%s, %s, %s, %s, %s, %s)""",
