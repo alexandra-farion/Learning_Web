@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import datetime
-
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -10,13 +8,12 @@ from psycopg.rows import dict_row
 from uvicorn import run
 
 from scripts.postgresgl import *
+from scripts.server_utils import *
 
 app = FastAPI(default_response_class=ORJSONResponse)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
-
-base_schedule = [[["", ""] for i in range(8)] for j in range(6)]
 
 
 @app.get('/')
@@ -99,22 +96,6 @@ async def get_schedule_from_bd(school, clazz, week):
             return await cursor.fetchone()
 
 
-def join_schedules(old_schedule, new_schedule):
-    for i in range(len(old_schedule)):
-        day = old_schedule[i]
-
-        for j in range(len(day)):
-            new_subj = new_schedule[i][j]
-
-            if day[j][0] != new_subj:
-                arr = [new_subj, "Не задано"]
-                if not new_subj:
-                    arr = ["", ""]
-                old_schedule[i][j] = arr
-
-    return old_schedule
-
-
 @app.post("/get_students")
 async def get_students(info: Request):
     data = await info.json()
@@ -140,7 +121,7 @@ async def get_students(info: Request):
                 await cursor.execute(f"""SELECT value
                                         FROM marks
                                         WHERE Date='{date}' AND Nickname='{student}' AND Subject=%s
-                                        """, (subject, ))
+                                        """, (subject,))
                 mark = await cursor.fetchone()
                 if mark:
                     if len(theme) == 0:
@@ -169,15 +150,15 @@ async def post_marks(info: Request):
             for nickname, mark in data["marks"]:
                 condition = f"WHERE Nickname='{nickname}' AND Date='{date}' AND Subject=%s"
 
-                await cursor.execute(f"SELECT EXISTS (SELECT 100 FROM marks {condition})", (subject, ))
+                await cursor.execute(f"SELECT EXISTS (SELECT 100 FROM marks {condition})", (subject,))
                 if (await cursor.fetchone())[0]:
                     if mark != 0:
                         await cursor.execute(f"""UPDATE marks 
                                                 SET Value={mark}, Theme='{theme}', Weight={weight} 
                                                 {condition}
-                                                """, (subject, ))
+                                                """, (subject,))
                     else:
-                        await cursor.execute(f"DELETE FROM marks {condition}", (subject, ))
+                        await cursor.execute(f"DELETE FROM marks {condition}", (subject,))
                 elif mark != 0:
                     await cursor.execute("""INSERT INTO marks
                                             VALUES (%s, %s, %s, %s, %s, %s)""",
@@ -208,20 +189,32 @@ async def get_marks(info: Request):
 
 @app.post("/get_mark_report")
 async def get_mark_report(info: Request):
-    pass
-    # data = await info.json()
-    # nickname = data["nickname"]
-    # # report = db_marks.get_data("Value, Subject", f"Nickname='{nickname}'")
-    # dictionary = {}
-    # for item in db_marks.get_data("Value, Subject", f"Nickname='{nickname}'"):
-    #     subject = item[1]
-    #     mark = item[0]
-    #     if dictionary.get(subject):
-    #         dictionary[subject].append(mark)
-    #     else:
-    #         dictionary[subject] = [mark]
-    # print(dictionary)
-    # return dictionary
+    data = await info.json()
+    nickname = data["nickname"]
+    start_date = normalise_date(data["start_date"])
+    end_date = normalise_date(data["end_date"]) + datetime.timedelta(days=1)
+
+    async with await connect() as connection:
+        async with connection.cursor() as cursor:
+            report = {}
+            subjects = []
+            while start_date != end_date:
+                await cursor.execute(f"""SELECT value, subject, weight, theme
+                                    FROM marks
+                                    WHERE nickname = '{nickname}'
+                                    AND date = '{str(start_date)}'
+                                    """)
+                data = await cursor.fetchall()
+
+                if data:
+                    report[str(start_date)] = data
+                    for elems in data:
+                        if elems[1] not in subjects:
+                            subjects.append(elems[1])
+
+                start_date += datetime.timedelta(days=1)
+
+            return {"days": report, "subjects": subjects}
 
 
 if __name__ == '__main__':

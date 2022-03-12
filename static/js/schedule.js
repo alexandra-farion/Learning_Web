@@ -39,8 +39,8 @@ function getSubject(array, mark, id) {
     let markT = "";
     if (mark) {
         markT = `<br><b>Оценка: </b> ${mark[0]}</br>
-                     <b>По теме: </b> ${mark[2]}</br>
-                     <b>С весом: </b> ${mark[1]}</br>`
+                     <b>Тип работы: </b> ${mark[2]}</br>
+                     <b>Вес: </b> ${mark[1]}</br>`
     } else {
         mark = [""]
     }

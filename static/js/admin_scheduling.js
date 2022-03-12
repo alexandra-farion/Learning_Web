@@ -1,42 +1,43 @@
-import {niceDate, req} from './base.js';
+import {niceDate, req, str} from './base.js';
 import {getSchedule} from './baseSchedule.js';
 
 function setSubject(subject, id) {
     const tr = document.createElement('tr');
     tr.id = id
-    tr.innerHTML = '<th style="border: #F9F2DC"><input type="text" value="' + subject + '"></th>'
+    tr.innerHTML = `<th style="border: #F9F2DC"><input type="text" value="${subject}"></th>`
     return tr
 }
 
 function createSchedule(schedule) {
     for (let i = 0; i <= 5; i++) {
         for (let j = 0; j <= 7; j++) {
-            const old = document.getElementById(i + "" + j)
+            const old = document.getElementById(str(i, j))
             if (old) {
                 old.remove()
             }
 
             const subject = schedule[i][j][0]
-            document.getElementById(i + "").append(setSubject(subject, i + "" + j))
+            document.getElementById(str(i)).append(setSubject(subject, str(i, j)))
         }
     }
 }
 
 export function runScheduling(school) {
     function schedule() {
-        getSchedule(weekNumber.value, classInput.value, school, createSchedule)
+        getSchedule(weekNumber.value, classSelect.value, school, createSchedule)
     }
 
     const inputs = document.getElementsByTagName("input")
-    const classInput = document.querySelector('input[type="text"]');
-    const weekNumber = document.querySelector('input[type="week"]');
+    const classSelect = document.getElementById("class")
+    const weekNumber = document.querySelector('input[type="week"]')
     weekNumber.value = niceDate(new Date())
 
     schedule()
     weekNumber.addEventListener("input", schedule)
+    classSelect.addEventListener("input", schedule)
 
     document.getElementById("change").onclick = function () {
-        const clazz = classInput.value;
+        const clazz = classSelect.value;
 
         if (clazz.length > 3 || clazz.length <= 1 || !(/[0-9]/.test(clazz)) || !(/[а-яё]/i.test(clazz))) {
             Swal.fire({
@@ -54,7 +55,7 @@ export function runScheduling(school) {
         let numSubj = 0;
         let day = 0;
 
-        for (let i = 2; i < inputs.length; i++) {
+        for (let i = 1; i < inputs.length; i++) {
             schedule[day][numSubj] = inputs[i].value
 
             numSubj += 1

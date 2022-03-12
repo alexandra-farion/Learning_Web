@@ -1,30 +1,175 @@
-import {str} from './base.js';
+import {arraySum, str} from './base.js'
 
-function createReport(jsonReport) {
-    const table = document.getElementById("markTable")
-    let maxLen = -42636
+function getMarkContainer(value, subject, theme, weight) {
+    const td = document.createElement("td")
+    const html = `<b>Тип работы: </b> ${theme}</br>
+                    <b>Предмет: </b> ${subject}</br>
+                    <b>Вес: </b> ${weight}</br>`
+
+    td.align = "center"
+    td.bgColor = "#ffffff"
+    td.innerHTML = `<i>${value}</i>`
+    td.onclick = function () {
+        Swal.mixin({
+            customClass: {
+                cancelButton: 'button'
+            },
+            buttonsStyling: false
+        }).fire({
+            title: value,
+            html: html,
+            showCancelButton: true,
+            showConfirmButton: false,
+            cancelButtonText: '<i>Закрыть</i>',
+            icon: 'info',
+            timer: 3500,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+        Swal.stopTimer()
+    }
+    return td
+}
+
+function addTextIntoHTML(value, text) {
+    addHTML(value, `<td align="center" bgcolor="#ffffff"><i>${text}</i></td>`)
+}
+
+function addHTML(value, html) {
+    if (typeof value === 'number') {
+        value = document.getElementById(value)
+    }
+    value.insertAdjacentHTML("beforeend", html)
+}
+
+function getAverageScore(marks, weights) {
+    let sum = 0
+    for (let i = 0; i < marks.length; i++) {
+        sum += marks[i] * weights[i]
+    }
+    return sum / arraySum(weights)
+}
+
+function setDays(hat, jsonReport) {
+    const tr = document.createElement("tr")
+    const json_months = {}
+    hat.after(tr)
+
+    for (let date in jsonReport) {
+        date = date.split("-")
+        const month_num = date[1]
+
+        if (!json_months[month_num]) {
+            json_months[month_num] = 1
+        } else {
+            json_months[month_num] += 1
+        }
+
+        addHTML(tr, `<th bgcolor="#ffffff">${parseInt(date[2])}</th>`)
+    }
+
+    for (const month in json_months) {
+        addHTML(hat, `<th colspan="${json_months[month]}" bgcolor="#ffffff"><i>${months[month]}</i></th>`)
+    }
+    addHTML(hat, `<td rowspan="2" bgcolor="#ffffff" align="center"><i>Ср. балл</i></td>`)
+}
+
+function setSubjects(table, arrSubjects) {
+    const subjects = {}
     let id = 0
-    for (let subject in jsonReport) {
-        const marks = jsonReport[subject]
-        let tr = document.getElementById(str(id))
-        if (!tr) {
-            tr = document.createElement("tr")
-        }
-        tr.innerHTML = `<td bgcolor="#ffffff"><i>${subject}</i></td>`
-        if (marks.length > maxLen) {
-            maxLen = marks.length
-        }
-        for (let i = 0; i < maxLen; i++) {
-            const mark = marks[i]
-            tr.insertAdjacentHTML("beforeend", `<td align="center" bgcolor="#ffffff"><i>${mark}</i></td>`)
-        }
-        table.append(tr)
 
-        id += 1
+    for (let i = 0; i < arrSubjects.length; i++) {
+        const subject = arrSubjects[i]
+
+        if (!subjects[subject]) {
+            addHTML(table, `<tr id="${id}">
+                                    <td align="center" bgcolor="#ffffff" width="10">
+                                        <button class="button2" id="${str("button-", id)}"></button>
+                                    </td>
+                                    <td bgcolor="#ffffff"><i>${subject}</i></td>
+                                </tr>`)
+
+            const subjectLine = document.getElementById(id)
+            const button = document.getElementById(str("button-", id))
+            button.onclick = function () {
+                const containers = subjectLine.querySelectorAll("td")
+
+                if (containers[0].style.background !== 'rgb(249, 242, 220)') {
+                    button.style.background = '#B7A295'
+                    for (let j = 0; j < containers.length; j++) {
+                        containers[j].style.background = '#F9F2DC'
+                    }
+                } else {
+                    button.style.background = '#F9F2DC'
+                    for (let j = 0; j < containers.length; j++) {
+                        containers[j].style.background = '#ffffff'
+                    }
+                }
+            }
+
+            subjects[subject] = id++
+        }
+    }
+
+    return subjects
+}
+
+function setMarks(jsonReport, subjects) {
+    const arr_subjects = jsonReport["subjects"]
+    const num_subjects = arr_subjects.length
+    const days = jsonReport["days"]
+    const average = {}
+    const weights = {}
+
+    for (const date in days) {
+        const day = days[date]
+        let settedMarks = []
+
+        for (let i = 0; i < day.length; i++) {
+            const infoAboutMark = day[i]
+            const subject = infoAboutMark[1]
+            const mark = infoAboutMark[0]
+            const weight = infoAboutMark[2]
+            const id = arr_subjects.indexOf(subject)
+
+            document.getElementById(id).append(getMarkContainer(mark, subject, infoAboutMark[3], weight))
+            settedMarks.push(id)
+
+            if (average[subject]) {
+                average[subject].push(mark)
+                weights[subject].push(weight)
+            } else {
+                average[subject] = [mark]
+                weights[subject] = [weight]
+            }
+        }
+
+        for (let i = 0; i < num_subjects; i++) {
+            if (settedMarks.indexOf(i) === -1) {
+                addTextIntoHTML(subjects[arr_subjects[i]], '')
+            }
+        }
+    }
+    for (let i = 0; i < num_subjects; i++) {
+        const subject = arr_subjects[i]
+        addTextIntoHTML(subjects[subject], getAverageScore(average[subject], weights[subject]).toFixed(2))
     }
 }
 
-export function runMarks(nickname) {
+function createReport(jsonReport) {
+    const table = document.getElementById("markTable")
+    table.innerHTML = `<tr id="hat">
+                            <td rowspan="2" bgcolor="#ffffff"><i>Выделить</i></td>
+                            <th rowspan="2" bgcolor="#ffffff"><i>Предмет</i></th>
+                        <tr>`
+
+    setDays(document.getElementById("hat"), jsonReport["days"])
+    setMarks(jsonReport, setSubjects(table, jsonReport["subjects"]))
+}
+
+function getReport(dateStart, dateEnd, nickname) {
     const req = new XMLHttpRequest()
     req.open("POST", "get_mark_report", true)
     req.onload = function () {
@@ -35,6 +180,30 @@ export function runMarks(nickname) {
         }
     }
     req.send(JSON.stringify({
-        "nickname": nickname
+        "nickname": nickname,
+        "start_date": dateStart,
+        "end_date": dateEnd
     }))
+}
+
+const months = {
+    "01": 'Январь', "02": 'Февраль', "03": 'Март', "04": 'Апрель', "05": 'Май',
+    "06": 'Июнь', "07": 'Июль', "08": 'Август', "09": 'Сентябрь',
+    "10": 'Октябрь', "11": 'Ноябрь', "12": 'Декабрь'
+}
+
+export function runMarks(nickname) {
+    function getMarks() {
+        getReport(dateStart.value, dateEnd.value, nickname)
+    }
+
+    const dateStart = document.getElementById("start")
+    const dateEnd = document.getElementById("end")
+
+    dateStart.value = "2022-01-10"
+    dateEnd.value = "2022-05-30"
+
+    dateStart.addEventListener("input", getMarks)
+    dateEnd.addEventListener("input", getMarks)
+    getMarks()
 }

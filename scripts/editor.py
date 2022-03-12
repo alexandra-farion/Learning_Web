@@ -42,27 +42,16 @@ class DB:
         async with await connect() as connection:
             async with connection.cursor() as cursor:
                 with open("students.csv", encoding='utf-8') as file:
-                    arr = file.readlines()
-                    arr.reverse()
-
-                    for i in range(len(arr) - 1):
-                        student = arr[i][:-1]
+                    for student in file.readlines():
+                        student = student.replace("\ufeff", "").replace("\n", "")
                         await self.__add_people(cursor, (student.split()[0], student, "0000", 'МАОУ "Лицей №6"',
                                                          "student", "11А", [None]))
 
-                    student = arr[-1][1:-1]
-                    await self.__add_people(cursor, (student.split()[0], student, "0000", 'МАОУ "Лицей №6"',
-                                                     "student", "11А", [None]))
-
-                    with open("teachers.csv", encoding='utf-8') as file:
-                        arr = file.readlines()
-                        line = arr[0][1:-1].split(";")
-                        await self.__add_people(cursor, (line[0].split()[0], line[0], "1111",
-                                                         'МАОУ "Лицей №6"', "teacher", None, line[1::]))
-                        for i in range(1, len(arr)):
-                            line = arr[i][:-1].split(";")
-                            await self.__add_people(cursor, (line[0].split()[0], line[0], "1111",
-                                                             'МАОУ "Лицей №6"', "teacher", None, line[1::]))
+                with open("teachers.csv", encoding='utf-8') as file:
+                    for teacher_subj in file.readlines():
+                        teacher_subj = teacher_subj.replace("\ufeff", "").replace("\n", "").split(";")
+                        await self.__add_people(cursor, (teacher_subj[0].split()[0], teacher_subj[0], "1111",
+                                                         'МАОУ "Лицей №6"', "teacher", None, teacher_subj[1:]))
 
     async def __add_people(self, cursor, data: tuple):
         await cursor.execute("INSERT INTO peoples VALUES (%s, %s, %s, %s, %s, %s, %s)", data)
@@ -72,66 +61,37 @@ class DB:
         week = str(date[1])
         if len(week) == 1:
             week = "0" + week
+        date = f"{date[0]}-W{week}"
 
         async with await connect() as connection:
             async with connection.cursor() as cursor:
-                await cursor.execute("INSERT INTO diary VALUES (%s, %s, %s, %s)",
-                                     ('МАОУ "Лицей №6"', "11А", f"{date[0]}-W{week}",
-                                      [
-                                          [["Информатика", "§30"],
-                                           ["Информатика", "§31"],
-                                           ["Химия", "параграф 14 упр. 2-4"],
-                                           ["Математика", "вариант 2, часть 2 № 12, 14, 15, 17 (Ященко И.В.)"],
-                                           ["Математика", ""],
-                                           ["Литература", ""],
-                                           ["Литература", ""],
-                                           ["Спецкурс по математике", ""]],
+                with open("schedule.csv", encoding='utf-8') as file:
+                    schedule = []
+                    day = []
+                    classes = file.readline().replace("\n", "").replace("\ufeff", "").split(";")
+                    current_class = 0
+                    subjects_count = 0
+                    all_schedule = file.readlines()
 
-                                          [["Математика", "п. 61, 62, 63, № 555, 558, 568"],
-                                           ["Математика", ""],
-                                           ["История", "принести 3 часть учебника Истории России"],
-                                           ["Физика", ""],
-                                           ["Физика", ""],
-                                           ["", ""],
-                                           ["", ""],
-                                           ["", ""]],
+                    while current_class < len(classes):
+                        for subject in all_schedule:
+                            subject = subject.replace("\ufeff", "").replace("\n", "").split(";")[current_class]
+                            if subject != "":
+                                day.append([subject, "Не задано"])
+                            else:
+                                schedule.append(day + [["", ""] for _ in range(8 - len(day))])
+                                day = []
+                                subjects_count += 1
 
-                                          [["", ""],
-                                           ["ОБЖ", "Правовые основы военной службы"],
-                                           ["Обществознание", "§31"],
-                                           ["Физ-ра", "параграф 14 упр. 2-4"],
-                                           ["Литература", ""],
-                                           ["Английский", "стр 63 № В наизусть"],
-                                           ["Физика", ""],
-                                           ["", ""]],
+                                if subjects_count == 6:
+                                    break
 
-                                          [["Математика", ""],
-                                           ["Математика", ""],
-                                           ["Физ-ра", ""],
-                                           ["Английский", ""],
-                                           ["Проект", "Записи в тетради"],
-                                           ["Информатика", ""],
-                                           ["Информатика", ""],
-                                           ["", ""]],
+                        await cursor.execute("INSERT INTO diary VALUES (%s, %s, %s, %s)",
+                                             ('МАОУ "Лицей №6"', classes[current_class], date, schedule))
 
-                                          [["Математика", ""],
-                                           ["Математика", ""],
-                                           ["Физика", ""],
-                                           ["Английский", ""],
-                                           ["Физика", ""],
-                                           ["Русский яз", ""],
-                                           ["Родной...", ""],
-                                           ["", ""]],
-
-                                          [["Шахматы", ""],
-                                           ["История", ""],
-                                           ["География", ""],
-                                           ["Биология", "§17, 18"],
-                                           ["Общество", ""],
-                                           ["", ""],
-                                           ["", ""],
-                                           ["", ""]]
-                                      ]))
+                        schedule = []
+                        subjects_count = 0
+                        current_class += 1
 
     def add_all(self):
         asyncio.run(self.add_people())
@@ -172,9 +132,9 @@ class DB:
 
 
 db = DB()
-# db.kill_all()
-# db.add_all()
 # db.set_admin("Фокина Елена Валерьевна")
 # db.set_admin("Журило Лия Владимировна")
+
+# db.kill_all()
+# db.add_all()
 db.print()
-# db.kill_marks()

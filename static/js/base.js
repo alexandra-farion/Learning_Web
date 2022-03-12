@@ -26,6 +26,14 @@ export function str() {
     return string
 }
 
+export function arraySum(array){
+    let sum = 0
+    for (let i = 0; i < array.length; i++) {
+        sum += array[i]
+    }
+    return sum
+}
+
 export function setResponseForButton(htmlPage, func) {
     setFuncForButton(htmlPage, function () {
         req.open("POST", "html", true);
