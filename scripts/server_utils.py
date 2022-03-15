@@ -25,3 +25,21 @@ def get_week(date: str):
 
 def normalise_date(date: str):
     return datetime.date(*list(map(int, date.split("-"))))
+
+
+def clean_fixed_teacher_classes(input_classes):
+    print(input_classes)
+    classes = [[]]
+    index = 0
+    for i in input_classes:
+        if i[0] == "":
+            classes.pop()
+            break
+        for j in i:
+            if not j:
+                break
+            classes[index].append(j)
+
+        index += 1
+        classes.append([])
+    return classes

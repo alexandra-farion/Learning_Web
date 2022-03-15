@@ -8,14 +8,19 @@ const mainTable = document.getElementById("table")
 let curPage = sessionStorage.getItem("html")
 
 const json = JSON.parse(sessionStorage.getItem("user"))
-const clazz = json["class"]
 const school = json["school"]
 const nickname = json["nickname"]
-const subjects = json["subject"]
+const character = json["character"]
+
+const clazz = json["class"]
+const grouping = json["grouping"]
+const profession = json["profession"]
+
+const fixed_classes = json["fixed_classes"]
 let htmlPage = ""
 
 if (json) {
-    htmlPage = json["character"][1]
+    htmlPage = character[1]
     if (!curPage) {
         curPage = htmlPage
     }
@@ -56,7 +61,7 @@ function page(html) {
     setResponseForButton("teacher_grading", page)
 
     if (document.getElementsByTagName("table").length === 8) {
-        switch (json["character"][0]) {
+        switch (character[0]) {
             case "student":
                 runSchedule(clazz, school, nickname)
                 return
@@ -70,7 +75,7 @@ function page(html) {
 
     const markWeight = document.getElementById("weight")
     if (markWeight) {
-        runGrading(school, subjects)
+        runGrading(school, fixed_classes)
     }
 
     const tableMarkReport = document.getElementById("markTable")

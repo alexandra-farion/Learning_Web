@@ -125,14 +125,14 @@ function getMarksAndStudents() {
     }
 }
 
-function addSubjectSelect(subjects, func) {
+function setSubjectsInSelect(subjects, func) {
     if (subjects.length > 1) {
         let selectSubjects = document.getElementById("subject")
 
         if (!selectSubjects) {
-            document.getElementById("titles").insertAdjacentHTML("beforeend", `<td align="center"><i>Предмет</i></td>`)
+            document.getElementById("titles").insertAdjacentHTML("beforeend", `<td align="center" id="textSubject"><i>Предмет</i></td>`)
 
-            let selectSubjectsHTML = `<td align="center">
+            let selectSubjectsHTML = `<td align="center" id="trForSubjects">
                                             <label for="subject">
                                                 <select id="subject" style="width: 100%">`
             for (let i = 0; i < subjects.length; i++) {
@@ -145,35 +145,63 @@ function addSubjectSelect(subjects, func) {
                 currentSubject = selectSubjects.value
                 func()
             })
+        } else {
+            document.getElementById("trForSubjects").remove()
+            document.getElementById("textSubject").remove()
+            setSubjectsInSelect(subjects, func)
         }
     }
 
     currentSubject = subjects[0]
 }
 
+function add_classes(teacher_list) {
+    let selectClasses = document.getElementById("classSelect")
+    if (selectClasses) {
+        selectClasses.remove()
+    }
+    let html = `<td id="classSelect"><label for="class"><select id="class">`
+    for (let i = teacher_list.length - 1; i >= 0; i--) {
+        html += `<option>${teacher_list[i][0]}</option>`
+    }
+    html += `</select></label></td>`
+    document.getElementById("inputs").insertAdjacentHTML("afterbegin", html)
+    return document.getElementById("class")
+}
+
 let studentsNicks
 let currentSubject
 
 export function runGrading(school, subjects) {
-    function students() {
-        getStudents(classInput.value, school, dateInput.value, workName, markWeight)
+    function students(clazz) {
+        getStudents(clazz, school, dateInput.value, workName, markWeight)
     }
 
-    const classInput = document.getElementById("class")
+    function getNewStudentsAndSubjects() {
+        const clazz = classInput.value
+
+        for (let i = 0; i < subjects.length; i++) {
+            if (subjects[i][0] === clazz) {
+                setSubjectsInSelect(subjects[i].slice(1, subjects[i].length), () => students(clazz))
+                students(clazz)
+                return
+            }
+        }
+    }
+
+    const classInput = add_classes(subjects)
     const dateInput = document.querySelector('input[type="date"]')
     const workName = document.querySelector('input[type="text"]')
     const markWeight = document.getElementById("weight")
-
-    addSubjectSelect(subjects, students)
 
     document.getElementById("save").onclick = function () {
         postData(workName.value, markWeight.value, dateInput.value)
     }
 
-    classInput.addEventListener("input", students)
+    classInput.addEventListener("input", getNewStudentsAndSubjects)
 
     dateInput.value = getDate()
-    dateInput.addEventListener("input", students)
+    dateInput.addEventListener("input", () => students(classInput.value))
 
-    students()
+    getNewStudentsAndSubjects()
 }

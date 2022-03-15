@@ -1,7 +1,19 @@
 # -*- coding: utf-8 -*-
 import datetime
+import random
 
 from postgresgl import *
+
+
+def primary_nick(array, nick):
+    if nick not in array:
+        array.append(nick)
+        return nick
+    return primary_nick(array, nick + "0")
+
+
+def clear_strings(string):
+    return string.replace("\ufeff", "").replace("\n", "")
 
 
 class DB:
@@ -11,14 +23,20 @@ class DB:
                 async with connection.cursor() as cursor:
                     await cursor.execute("""CREATE TABLE IF NOT EXISTS diary
                                             (school TEXT, class TEXT, week TEXT, schedule TEXT[][][]);
-
-                                            CREATE TABLE IF NOT EXISTS peoples
-                                            (nickname TEXT PRIMARY KEY, name TEXT, password TEXT, school TEXT, 
-                                            character TEXT, class TEXT, subject TEXT[]);
-
+                                            
                                             CREATE TABLE IF NOT EXISTS marks
                                             (nickname TEXT, date TEXT, weight INTEGER, value INTEGER, 
                                             theme TEXT, subject TEXT);
+
+                                            CREATE TABLE IF NOT EXISTS peoples
+                                            (nickname TEXT PRIMARY KEY, name TEXT, password TEXT, school TEXT, 
+                                            database TEXT);
+
+                                            CREATE TABLE IF NOT EXISTS teachers
+                                            (nickname TEXT PRIMARY KEY, character TEXT, fixed_classes TEXT[][]);
+                                            
+                                            CREATE TABLE IF NOT EXISTS students
+                                            (nickname TEXT PRIMARY KEY, class TEXT, grouping TEXT, profession TEXT);                                            
                                         """)
 
         asyncio.run(i())
@@ -31,6 +49,8 @@ class DB:
 
     async def kill_human(self):
         await self.__kill("peoples")
+        await self.__kill("teachers")
+        await self.__kill("students")
 
     async def kill_diary(self):
         await self.__kill("diary")
@@ -41,20 +61,44 @@ class DB:
     async def add_people(self):
         async with await connect() as connection:
             async with connection.cursor() as cursor:
+                nicks = []
                 with open("students.csv", encoding='utf-8') as file:
-                    for student in file.readlines():
-                        student = student.replace("\ufeff", "").replace("\n", "")
-                        await self.__add_people(cursor, (student.split()[0], student, "0000", 'МАОУ "Лицей №6"',
-                                                         "student", "11А", [None]))
+                    for student_and_class in file.readlines():
+                        student, clazz = student_and_class.split(";")
+                        student = clear_strings(student)
+                        nickname = primary_nick(nicks, student.split()[0])
+
+                        await self.__add_user(cursor, nickname, student, "0000", 'МАОУ "Лицей №6"', "students",
+                                              (clear_strings(clazz), random.randint(1, 2),
+                                               random.choice(["естеств.", "эконом.", None])))
 
                 with open("teachers.csv", encoding='utf-8') as file:
-                    for teacher_subj in file.readlines():
-                        teacher_subj = teacher_subj.replace("\ufeff", "").replace("\n", "").split(";")
-                        await self.__add_people(cursor, (teacher_subj[0].split()[0], teacher_subj[0], "1111",
-                                                         'МАОУ "Лицей №6"', "teacher", None, teacher_subj[1:]))
+                    for teacher_and_classes in file.readlines():
+                        teacher_classes = []
+                        teacher_and_classes = teacher_and_classes.replace("\n", "").replace("\ufeff", "").split(";")
+                        teacher = teacher_and_classes[0]
+                        if teacher[-1] == " ":
+                            teacher = teacher[:-1]
+                        nickname = primary_nick(nicks, teacher.split()[0])
 
-    async def __add_people(self, cursor, data: tuple):
-        await cursor.execute("INSERT INTO peoples VALUES (%s, %s, %s, %s, %s, %s, %s)", data)
+                        for j in teacher_and_classes[1:]:
+                            if j:
+                                classes = j.split()
+                                teacher_classes.append(
+                                    [i.replace("-", " ") for i in classes] + ["" for _ in range(5 - len(classes))])
+
+                        teacher_classes += [["" for _ in range(5)] for _ in range(16 - len(teacher_classes))]
+                        await self.__add_user(cursor, nickname, teacher, "1111",
+                                              'МАОУ "Лицей №6"', "teachers",
+                                              ("teacher", teacher_classes))
+
+    async def __add_user(self, cursor, nick, name, password, school, database, data: tuple):
+        await cursor.execute("INSERT INTO peoples VALUES (%s, %s, %s, %s, %s)",
+                             (nick, name, password, school, database))
+        if database == "teachers":
+            await cursor.execute("INSERT INTO teachers VALUES (%s, %s, %s)", (nick,) + data)
+        else:
+            await cursor.execute("INSERT INTO students VALUES (%s, %s, %s, %s)", (nick,) + data)
 
     async def add_diary(self):
         date = datetime.date.today().isocalendar()
@@ -104,7 +148,7 @@ class DB:
 
     async def __print(self, cursor, name):
         await cursor.execute(f"SELECT * FROM {name}")
-        print(f"---------------{name}")
+        print(f"---------------------------------------------------{name}")
         for i in await cursor.fetchall():
             print(i)
         print("    ")
@@ -113,8 +157,10 @@ class DB:
         async def p():
             async with await connect() as connection:
                 async with connection.cursor() as cursor:
-                    await self.__print(cursor, "diary")
                     await self.__print(cursor, "peoples")
+                    await self.__print(cursor, "teachers")
+                    await self.__print(cursor, "students")
+                    await self.__print(cursor, "diary")
                     await self.__print(cursor, "marks")
 
         asyncio.run(p())
@@ -123,9 +169,11 @@ class DB:
         async def s():
             async with await connect() as connection:
                 async with connection.cursor() as cursor:
-                    await cursor.execute(f"""UPDATE peoples
+                    await cursor.execute(f"""SELECT nickname FROM peoples WHERE name = '{name}'""")
+
+                    await cursor.execute(f"""UPDATE teachers
                                             SET character = 'admin'
-                                            WHERE name = '{name}'
+                                            WHERE nickname = '{(await cursor.fetchone())[0]}'
                                         """)
 
         asyncio.run(s())

@@ -32,20 +32,39 @@ async def enter(request: Request):
     nickname = data["nickname"]
     password = data["password"]
     school = data["school"]
+    answer_dict = {"nickname": nickname, "school": school}
 
     async with await connect() as connection:
         async with connection.cursor(row_factory=dict_row) as cursor:
-            await cursor.execute(f"""SELECT * 
+            await cursor.execute(f"""SELECT name, database 
                                     FROM peoples 
-                                    WHERE Nickname='{nickname}' AND Password='{password}' AND School='{school}'
+                                    WHERE nickname='{nickname}' AND password='{password}' AND school='{school}'
                                     """)
-            student_data = await cursor.fetchone()
-            if student_data:
-                student_data["character"] = [student_data["character"], templates.TemplateResponse(
-                    student_data["character"] + "_main.html", {"request": request}).body]
-                return student_data
+            people = await cursor.fetchone()
 
-    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Incorrect PASSWORD / NAME")
+            if not people:
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                    detail="Incorrect PASSWORD / NAME")
+
+            if people["database"] == "students":
+                await cursor.execute(f"""SELECT class, grouping, profession 
+                                        FROM students 
+                                        WHERE nickname='{nickname}'
+                                        """)
+                answer_dict["character"] = "student"
+                answer_dict |= await cursor.fetchone()
+            else:
+                await cursor.execute(f"""SELECT fixed_classes, character 
+                                        FROM teachers 
+                                        WHERE nickname='{nickname}'
+                                        """)
+                data = await cursor.fetchone()
+                data["fixed_classes"] = clean_fixed_teacher_classes(data["fixed_classes"])
+                answer_dict |= data
+
+            answer_dict["character"] = [answer_dict["character"], templates.TemplateResponse(
+                answer_dict["character"] + "_main.html", {"request": request}).body]
+            return answer_dict
 
 
 @app.post("/html")
@@ -78,7 +97,7 @@ async def post_schedule(info: Request):
             if old_schedule:
                 await cursor.execute(f"""UPDATE diary
                                         SET schedule = %s
-                                        WHERE School='{school}' AND Class='{clazz}' AND Week='{week}'
+                                        WHERE school='{school}' AND class='{clazz}' AND week='{week}'
                                         """, (join_schedules(old_schedule[0], new_schedule),))
             else:
                 print("Создаю новое расписание")
@@ -91,7 +110,7 @@ async def get_schedule_from_bd(school, clazz, week):
         async with connection.cursor() as cursor:
             await cursor.execute(f"""SELECT schedule
                                     FROM diary
-                                    WHERE School='{school}' AND Class='{clazz}' AND Week='{week}'
+                                    WHERE school='{school}' AND class='{clazz}' AND week='{week}'
                                     """)
             return await cursor.fetchone()
 
@@ -106,9 +125,11 @@ async def get_students(info: Request):
 
     async with await connect() as connection:
         async with connection.cursor() as cursor:
-            await cursor.execute(f"""SELECT nickname, name 
-                                    FROM peoples
-                                    WHERE School='{school}' AND Class='{clazz}' AND Character='student'
+            await cursor.execute(f"""SELECT student.nickname, name
+                                    FROM peoples, (SELECT nickname
+                                        FROM students
+                                        WHERE class='{clazz}') AS student
+                                    WHERE peoples.nickname = student.nickname and school='{school}'
                                     """)
 
             students = await cursor.fetchall()
@@ -120,14 +141,14 @@ async def get_students(info: Request):
                 student = student[0]
                 await cursor.execute(f"""SELECT value
                                         FROM marks
-                                        WHERE Date='{date}' AND Nickname='{student}' AND Subject=%s
+                                        WHERE date='{date}' AND nickname='{student}' AND subject=%s
                                         """, (subject,))
                 mark = await cursor.fetchone()
                 if mark:
                     if len(theme) == 0:
                         await cursor.execute(f"""SELECT theme, weight
                                                 FROM marks
-                                                WHERE Date='{date}' AND Nickname='{student}'
+                                                WHERE date='{date}' AND nickname='{student}'
                                                 """)
                         theme, weight = await cursor.fetchone()
                     marks.append(mark[0])
