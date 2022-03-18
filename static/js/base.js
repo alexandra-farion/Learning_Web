@@ -26,7 +26,7 @@ export function str() {
     return string
 }
 
-export function arraySum(array){
+export function arraySum(array) {
     let sum = 0
     for (let i = 0; i < array.length; i++) {
         sum += array[i]
@@ -36,6 +36,7 @@ export function arraySum(array){
 
 export function setResponseForButton(htmlPage, func) {
     setFuncForButton(htmlPage, function () {
+        const req = new XMLHttpRequest()
         req.open("POST", "html", true);
         req.onload = function () {
             if (req.status === 200) {
@@ -54,5 +55,3 @@ export function setFuncForButton(buttonName, func) {
         button.onclick = func
     }
 }
-
-export var req = new XMLHttpRequest()

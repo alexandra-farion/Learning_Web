@@ -1,6 +1,12 @@
 import datetime
 
-base_schedule = [[["", ""] for i in range(8)] for j in range(6)]
+base_student_schedule = [[["", ""] for i in range(8)] for j in range(6)]
+groups = {
+    "1": " 1 гр.",
+    "2": " 2 гр.",
+    "ест.": " ест.",
+    "эк.": " эк."
+}
 
 
 def join_schedules(old_schedule, new_schedule):
@@ -28,7 +34,6 @@ def normalise_date(date: str):
 
 
 def clean_fixed_teacher_classes(input_classes):
-    print(input_classes)
     classes = [[]]
     index = 0
     for i in input_classes:
@@ -43,3 +48,17 @@ def clean_fixed_teacher_classes(input_classes):
         index += 1
         classes.append([])
     return classes
+
+
+def __get_subject(arr: list, arg: str):
+    return " ".join(arr[:arr.index(arg)])
+
+
+def get_subject_and_group(subjects_where_found: str, subjects: list):
+    for subject in subjects:
+        for subject_and_group in subjects_where_found.split("/"):
+            if subject in subject_and_group:
+                for key in groups.keys():
+                    if key in subject_and_group:
+                        return __get_subject(subject_and_group.split(), key), groups[key]
+    return "", ""

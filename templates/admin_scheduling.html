@@ -1,27 +1,4 @@
-<style>
-    .vertical span {
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
-    }
-
-    input {
-        height: 20px;
-        border: 1px solid #999;
-        font-size: 15px;
-        color: #000000;
-        background-color: white;
-        border-radius: 5px;
-    }
-    select {
-        width: 90px;
-        height: 20px;
-        border: 1px solid #999;
-        font-size: 15px;
-        color: #000000;
-        background-color: white;
-        border-radius: 5px;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', path='/css/select_inputs.css') }}" type="text/css">
 
 <tr>
     <th bgcolor="#DBCFA9" height="40" colspan="4" align="right">
@@ -30,12 +7,30 @@
         </button>
 </tr>
 <tr>
-    <th width="100%" height="30" colspan="4">
+    <th width="100%" height="30" colspan="4" id="adminScheduling">
         <p><i>Класс&nbsp;</i>
             <label for="class">
                 <select id="class">
                     <option>11А</option>
                     <option>11Б</option>
+                    <option>10А</option>
+                    <option>10Б</option>
+                    <option>9А</option>
+                    <option>9Б</option>
+                    <option>9В</option>
+                    <option>8А</option>
+                    <option>8Б</option>
+                    <option>8В</option>
+                    <option>7А</option>
+                    <option>7Б</option>
+                    <option>7В</option>
+                    <option>6А</option>
+                    <option>6Б</option>
+                    <option>6В</option>
+                    <option>5А</option>
+                    <option>5Б</option>
+                    <option>5В</option>
+                    <option>5Г</option>
                 </select>
             </label><i>&nbsp;&nbsp;&nbsp;Выберите неделю&nbsp;</i>
             <label>

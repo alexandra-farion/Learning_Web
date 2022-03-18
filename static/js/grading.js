@@ -85,10 +85,6 @@ function createStudentsTable(json) {
     }
 
     for (let i = 0; i < students.length; i++) {
-        let mark = marks[i];
-        if (!mark) {
-            mark = ""
-        }
         studentsNicks.push(students[i][0])
         tr.insertAdjacentHTML('afterend', `<tr id="${i}">
                                                             <td>

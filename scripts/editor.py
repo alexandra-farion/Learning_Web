@@ -185,4 +185,6 @@ db = DB()
 
 # db.kill_all()
 # db.add_all()
+# asyncio.run(db.add_diary())
+# asyncio.run(db.kill_diary())
 db.print()

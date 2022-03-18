@@ -1,47 +1,4 @@
-<style>
-    .vertical span {
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
-    }
-
-    .containerSubj {
-        width: 150px;
-        height: 25px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-        font-size: 15pt;
-    }
-
-    .containerDesc {
-        width: 250px;
-        height: 25px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-        font-size: 15pt;
-    }
-
-    .containerMark {
-        width: 30px;
-        height: 25px;
-        font-size: 15pt;
-    }
-
-    .row {
-        height: 30px;
-        background-color: #ffffff;
-    }
-
-    input {
-        height: 20px;
-        border: 1px solid #999;
-        font-size: 15px;
-        color: #000000;
-        background-color: white;
-        border-radius: 5px;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', path='/css/containers.css') }}" type="text/css">
 
 <tr>
     <th bgcolor="#DBCFA9" height="40" colspan="4" align="right">
@@ -50,7 +7,7 @@
         </button>
 </tr>
 <tr>
-    <th align="center" colspan="4" height="50">
+    <th align="center" colspan="4" height="50" id="studentSchedule">
         <i>Выберите неделю </i>
         <label>
             <input type='week'>

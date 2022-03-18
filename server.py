@@ -1,29 +1,12 @@
-# -*- coding: utf-8 -*-
+from random import randint
 
-from fastapi import FastAPI, Request, HTTPException, status
-from fastapi.responses import ORJSONResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi import HTTPException, status
 from psycopg.rows import dict_row
 from uvicorn import run
 
+from scripts.app_manager import *
 from scripts.postgresgl import *
 from scripts.server_utils import *
-
-app = FastAPI(default_response_class=ORJSONResponse)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-templates = Jinja2Templates(directory="templates")
-
-
-@app.get('/')
-async def sign(request: Request):
-    return templates.TemplateResponse("sign_in.html", {"request": request})
-
-
-@app.get('/diary')
-async def sign(request: Request):
-    return templates.TemplateResponse("main_diary.html", {"request": request})
 
 
 @app.post("/enter")
@@ -62,14 +45,9 @@ async def enter(request: Request):
                 data["fixed_classes"] = clean_fixed_teacher_classes(data["fixed_classes"])
                 answer_dict |= data
 
-            answer_dict["character"] = [answer_dict["character"], templates.TemplateResponse(
-                answer_dict["character"] + "_main.html", {"request": request}).body]
+            answer_dict["character"] = [answer_dict["character"],
+                                        get_template(answer_dict["character"] + "_main", request).body]
             return answer_dict
-
-
-@app.post("/html")
-async def html(request: Request):
-    return templates.TemplateResponse((await request.json())["html"] + ".html", {"request": request})
 
 
 @app.post("/get_schedule")
@@ -79,7 +57,7 @@ async def get_schedule(request: Request):
     if schedule:
         return schedule[0]
     else:
-        return base_schedule
+        return base_student_schedule
 
 
 @app.post("/post_schedule")
@@ -102,7 +80,7 @@ async def post_schedule(info: Request):
             else:
                 print("Создаю новое расписание")
                 await cursor.execute("""INSERT INTO diary VALUES (%s, %s, %s, %s)""",
-                                     (school, clazz, week, join_schedules(base_schedule, new_schedule)))
+                                     (school, clazz, week, join_schedules(base_student_schedule, new_schedule)))
 
 
 async def get_schedule_from_bd(school, clazz, week):
@@ -236,6 +214,48 @@ async def get_mark_report(info: Request):
                 start_date += datetime.timedelta(days=1)
 
             return {"days": report, "subjects": subjects}
+
+
+@app.post("/get_teacher_schedule")
+async def get_teacher_schedule(info: Request):
+    data = await info.json()
+    fixed_classes = data["fixed_classes"]
+    week = data["week"]
+    school = data["school"]
+    schedule = [[["", "", "", "", i] for i in range(8)] for _ in range(6)]
+
+    async with await connect() as connection:
+        async with connection.cursor() as cursor:
+            for class_and_subjects in fixed_classes:
+                clazz = class_and_subjects[0]
+                teacher_subjects = class_and_subjects[1:]
+
+                await cursor.execute(f"""SELECT schedule 
+                                        FROM diary
+                                        WHERE school='{school}' AND week='{week}' AND class='{clazz}'
+                                        """)
+                class_schedule = await cursor.fetchone()
+                if class_schedule:
+                    class_schedule = class_schedule[0]
+                else:
+                    continue
+
+                for i in range(len(class_schedule)):
+                    day = class_schedule[i]
+
+                    for j in range(len(day)):
+                        subject = day[j][0]
+                        group = ""
+
+                        if "/" in subject:
+                            subject, group = get_subject_and_group(subject, teacher_subjects)
+
+                        if subject and (subject in teacher_subjects):
+                            schedule[i][j] = [clazz, subject + group, f"каб. {randint(1, 500)}", day[j][1], j]
+                            # чтобы, когда встретили у класса такой же предмет, поставить другой номер урока
+                            class_schedule[i][j] = ["", "", "", "", i]
+
+    return [sorted(day, key=lambda x: x[-1]) for day in schedule]
 
 
 if __name__ == '__main__':

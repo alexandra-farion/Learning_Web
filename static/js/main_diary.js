@@ -3,6 +3,7 @@ import {runSchedule} from "./schedule.js"
 import {runScheduling} from "./admin_scheduling.js"
 import {runGrading} from "./grading.js"
 import {runMarks} from "./student_marks.js"
+import {runTeacherSchedule} from "./teacher_schedule.js"
 
 const mainTable = document.getElementById("table")
 let curPage = sessionStorage.getItem("html")
@@ -60,26 +61,32 @@ function page(html) {
     setResponseForButton("teacher_diary", page)
     setResponseForButton("teacher_grading", page)
 
-    if (document.getElementsByTagName("table").length === 8) {
-        switch (character[0]) {
-            case "student":
-                runSchedule(clazz, school, nickname)
-                return
-            case "admin":
-                if (document.getElementsByTagName("button").length !== 25) {
-                    runScheduling(school)
-                    return
-                }
-        }
+    const studentSchedule = document.getElementById("studentSchedule")
+    if (studentSchedule) {
+        runSchedule(clazz, school, nickname)
+        return
+    }
+
+    const adminScheduling = document.getElementById("adminScheduling")
+    if (adminScheduling) {
+        runScheduling(school)
+        return
     }
 
     const markWeight = document.getElementById("weight")
     if (markWeight) {
         runGrading(school, fixed_classes)
+        return
     }
 
     const tableMarkReport = document.getElementById("markTable")
     if (tableMarkReport) {
         runMarks(nickname)
+        return
+    }
+
+    const teacherTable = document.getElementById("teacherTable")
+    if (teacherTable) {
+        runTeacherSchedule(fixed_classes, school)
     }
 }

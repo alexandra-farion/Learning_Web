@@ -1,61 +1,34 @@
-import {niceDate, str} from './base.js';
-import {getSchedule} from './baseSchedule.js';
-
-function setSwal(tr, title, html) {
-    tr.onclick = function () {
-        Swal.mixin({
-            customClass: {
-                cancelButton: 'button'
-            },
-            buttonsStyling: false
-        }).fire({
-            title: title,
-            html: html,
-            showCancelButton: true,
-            showConfirmButton: false,
-            cancelButtonText: '<i>Закрыть</i>',
-            icon: 'info',
-            timer: 3500,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        })
-        Swal.stopTimer()
-    }
-}
+import {niceDate, str} from './base.js'
+import {getSchedule, setSwal} from './base_schedule.js'
 
 function getSubject(array, mark, id) {
     const subject = array[0]
     const homework = array[1]
+    let html = ""
     const tr = document.createElement('tr');
     tr.id = id
 
-    let task = "";
     if (homework) {
-        task = `<b>Задание: </b> ${homework}</br>`
+        html += `<b>Задание: </b> ${homework}</br>`
     }
-
-    let markT = "";
-    if (mark) {
-        markT = `<br><b>Оценка: </b> ${mark[0]}</br>
+    if (mark[0]) {
+        html += `<br><b>Оценка: </b> ${mark[0]}</br>
                      <b>Тип работы: </b> ${mark[2]}</br>
                      <b>Вес: </b> ${mark[1]}</br>`
-    } else {
-        mark = [""]
     }
+
     tr.insertAdjacentHTML("afterbegin", `<td class="row">
-                                                        <div class="containerSubj">${subject}</div>
+                                                        <div class="container" style="width: 150px"><i>${subject}</i></div>
                                                       </td>
                                                       <td class="row">
-                                                        <div class="containerDesc">${homework}</div>
+                                                        <div class="container" style="width: 250px"><i>${homework}</i></div>
                                                       </td>
                                                       <td class="row" align="center">
-                                                        <div class="containerMark">${mark[0]}</div>
+                                                        <div class="container" style="width: 35px"><i>${mark[0]}</i></div>
                                                       </td>`)
 
     if (subject) {
-        setSwal(tr, subject, task + markT)
+        setSwal(tr, subject, html)
     }
     return tr
 }
@@ -76,7 +49,7 @@ function createSchedule(schedule, marks) {
 
             const line = schedule[i][j]
             const ind = subjects.indexOf(line[0])
-            let mark = ""
+            let mark = [""]
 
             if (ind !== -1 && subjects.length > 0) {
                 mark = [markData[ind][0], markData[ind][1], markData[ind][2]]

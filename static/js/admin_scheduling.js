@@ -1,7 +1,7 @@
-import {niceDate, req, str} from './base.js';
-import {getSchedule} from './baseSchedule.js';
+import {niceDate, str} from './base.js'
+import {getSchedule} from './base_schedule.js'
 
-function setSubject(subject, id) {
+function getSubjectContainer(subject, id) {
     const tr = document.createElement('tr');
     tr.id = id
     tr.innerHTML = `<th style="border: #F9F2DC"><input type="text" value="${subject}"></th>`
@@ -10,14 +10,14 @@ function setSubject(subject, id) {
 
 function createSchedule(schedule) {
     for (let i = 0; i <= 5; i++) {
-        for (let j = 0; j <= 7; j++) {
+        for (let j = 0; j < 8; j++) {
             const old = document.getElementById(str(i, j))
             if (old) {
                 old.remove()
             }
 
             const subject = schedule[i][j][0]
-            document.getElementById(str(i)).append(setSubject(subject, str(i, j)))
+            document.getElementById(str(i)).append(getSubjectContainer(subject, str(i, j)))
         }
     }
 }
@@ -37,20 +37,7 @@ export function runScheduling(school) {
     classSelect.addEventListener("input", schedule)
 
     document.getElementById("change").onclick = function () {
-        const clazz = classSelect.value;
-
-        if (clazz.length > 3 || clazz.length <= 1 || !(/[0-9]/.test(clazz)) || !(/[а-яё]/i.test(clazz))) {
-            Swal.fire({
-                title: "Введён некорректный класс!",
-                icon: 'error',
-                timer: 2500,
-                showConfirmButton: false,
-                toast: true,
-                position: "top"
-            })
-            return
-        }
-
+        const req = new XMLHttpRequest()
         const schedule = [[], [], [], [], [], []];
         let numSubj = 0;
         let day = 0;
@@ -82,7 +69,7 @@ export function runScheduling(school) {
         }
         req.send(JSON.stringify({
             "schedule": [schedule[0], schedule[2], schedule[4], schedule[1], schedule[3], schedule[5]],
-            "class": clazz.toUpperCase(),
+            "class": classSelect.value,
             "week": weekNumber.value,
             "school": school
         }))

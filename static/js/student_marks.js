@@ -86,7 +86,7 @@ function setSubjects(table, arrSubjects) {
         if (!subjects[subject]) {
             addHTML(table, `<tr id="${id}">
                                     <td align="center" bgcolor="#ffffff" width="10">
-                                        <button class="button2" id="${str("button-", id)}"></button>
+                                        <button class="button" style="width: 40px" id="${str("button-", id)}"></button>
                                     </td>
                                     <td bgcolor="#ffffff"><i>${subject}</i></td>
                                 </tr>`)
