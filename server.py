@@ -1,5 +1,3 @@
-from random import randint
-
 from fastapi import HTTPException, status
 from psycopg.rows import dict_row
 from uvicorn import run
@@ -80,7 +78,8 @@ async def post_schedule(info: Request):
             else:
                 print("Создаю новое расписание")
                 await cursor.execute("""INSERT INTO diary VALUES (%s, %s, %s, %s)""",
-                                     (school, clazz, week, join_schedules(base_student_schedule, new_schedule)))
+                                     (school, clazz, week,
+                                      join_schedules([[["", ""] for _ in range(8)] for _ in range(6)], new_schedule)))
 
 
 async def get_schedule_from_bd(school, clazz, week):
@@ -248,10 +247,13 @@ async def get_teacher_schedule(info: Request):
                         group = ""
 
                         if "/" in subject:
-                            subject, group = get_subject_and_group(subject, teacher_subjects)
+                            subject, group, classroom = get_subject_group_classroom(subject,
+                                                                                    teacher_subjects, "каб. 666")
+                        else:
+                            classroom = get_classroom(subject, "каб. 666")
 
-                        if subject and (subject in teacher_subjects):
-                            schedule[i][j] = [clazz, subject + group, f"каб. {randint(1, 500)}", day[j][1], j]
+                        if subject and ((subject in teacher_subjects) or ((subject + group) in teacher_subjects)):
+                            schedule[i][j] = [clazz, subject + group, classroom, day[j][1], j]
                             # чтобы, когда встретили у класса такой же предмет, поставить другой номер урока
                             class_schedule[i][j] = ["", "", "", "", i]
 

@@ -36,7 +36,10 @@ class DB:
                                             (nickname TEXT PRIMARY KEY, character TEXT, fixed_classes TEXT[][]);
                                             
                                             CREATE TABLE IF NOT EXISTS students
-                                            (nickname TEXT PRIMARY KEY, class TEXT, grouping TEXT, profession TEXT);                                            
+                                            (nickname TEXT PRIMARY KEY, class TEXT, grouping TEXT, profession TEXT);     
+                                                   
+                                            CREATE TABLE IF NOT EXISTS classes
+                                            (school TEXT, class TEXT PRIMARY KEY, classroom TEXT, subjects TEXT[]);                                        
                                         """)
 
         asyncio.run(i())
@@ -46,17 +49,6 @@ class DB:
             async with connection.cursor() as cursor:
                 await cursor.execute(f"DROP TABLE {name}")
                 print(f"DB {name} dropped")
-
-    async def kill_human(self):
-        await self.__kill("peoples")
-        await self.__kill("teachers")
-        await self.__kill("students")
-
-    async def kill_diary(self):
-        await self.__kill("diary")
-
-    async def kill_marks(self):
-        await self.__kill("marks")
 
     async def add_people(self):
         async with await connect() as connection:
@@ -121,7 +113,10 @@ class DB:
                         for subject in all_schedule:
                             subject = subject.replace("\ufeff", "").replace("\n", "").split(";")[current_class]
                             if subject != "":
-                                day.append([subject, "Не задано"])
+                                if subject == "---":
+                                    day.append(["", ""])
+                                else:
+                                    day.append([subject, "Не задано"])
                             else:
                                 schedule.append(day + [["", ""] for _ in range(8 - len(day))])
                                 day = []
@@ -137,14 +132,27 @@ class DB:
                         subjects_count = 0
                         current_class += 1
 
+    async def add_classes(self):
+        async with await connect() as connection:
+            async with connection.cursor() as cursor:
+                with open("classes.csv", encoding='utf-8') as file:
+                    for i in file.readlines():
+                        clazz = i.replace("\n", "").replace("\ufeff", "").split(";")
+                        await cursor.execute("INSERT INTO classes VALUES (%s, %s, %s, %s)",
+                                             ('МАОУ "Лицей №6"', clazz[0], clazz[1], clazz[2:]))
+
     def add_all(self):
         asyncio.run(self.add_people())
         asyncio.run(self.add_diary())
+        asyncio.run(self.add_classes())
 
     def kill_all(self):
-        asyncio.run(self.kill_diary())
-        asyncio.run(self.kill_human())
-        asyncio.run(self.kill_marks())
+        asyncio.run(self.__kill("diary"))
+        asyncio.run(self.__kill("peoples"))
+        asyncio.run(self.__kill("teachers"))
+        asyncio.run(self.__kill("students"))
+        asyncio.run(self.__kill("marks"))
+        asyncio.run(self.__kill("classes"))
 
     async def __print(self, cursor, name):
         await cursor.execute(f"SELECT * FROM {name}")
@@ -160,6 +168,7 @@ class DB:
                     await self.__print(cursor, "peoples")
                     await self.__print(cursor, "teachers")
                     await self.__print(cursor, "students")
+                    await self.__print(cursor, "classes")
                     await self.__print(cursor, "diary")
                     await self.__print(cursor, "marks")
 
@@ -174,17 +183,18 @@ class DB:
                     await cursor.execute(f"""UPDATE teachers
                                             SET character = 'admin'
                                             WHERE nickname = '{(await cursor.fetchone())[0]}'
-                                        """)
+                                            """)
 
         asyncio.run(s())
 
 
 db = DB()
+db.kill_all()
 # db.set_admin("Фокина Елена Валерьевна")
 # db.set_admin("Журило Лия Владимировна")
 
-# db.kill_all()
-# db.add_all()
+db = DB()
+db.add_all()
 # asyncio.run(db.add_diary())
 # asyncio.run(db.kill_diary())
 db.print()

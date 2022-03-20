@@ -1,12 +1,8 @@
 import datetime
+from functools import lru_cache
 
 base_student_schedule = [[["", ""] for i in range(8)] for j in range(6)]
-groups = {
-    "1": " 1 гр.",
-    "2": " 2 гр.",
-    "ест.": " ест.",
-    "эк.": " эк."
-}
+groups = (" 1 гр.", " 2 гр.", " ест.", " эк.")
 
 
 def join_schedules(old_schedule, new_schedule):
@@ -25,10 +21,7 @@ def join_schedules(old_schedule, new_schedule):
     return old_schedule
 
 
-def get_week(date: str):
-    return datetime.date(*list(map(int, date.split("-")))).isocalendar().week
-
-
+@lru_cache(maxsize=1024, typed=True)
 def normalise_date(date: str):
     return datetime.date(*list(map(int, date.split("-"))))
 
@@ -50,15 +43,22 @@ def clean_fixed_teacher_classes(input_classes):
     return classes
 
 
-def __get_subject(arr: list, arg: str):
-    return " ".join(arr[:arr.index(arg)])
+def __get_subject(string: str, group: str):
+    return string[:string.index(group)]
 
 
-def get_subject_and_group(subjects_where_found: str, subjects: list):
+def get_classroom(string: str, base_class: str):
+    if "(" in string:
+        return string[string.index("(") + 1: string.index(")")]
+    return base_class
+
+
+def get_subject_group_classroom(subjects_where_found: str, subjects: list, base_class: str):
     for subject in subjects:
         for subject_and_group in subjects_where_found.split("/"):
             if subject in subject_and_group:
-                for key in groups.keys():
-                    if key in subject_and_group:
-                        return __get_subject(subject_and_group.split(), key), groups[key]
-    return "", ""
+                for group in groups:
+                    if group in subject_and_group:
+                        return __get_subject(subject_and_group, group), group, \
+                               get_classroom(subject_and_group, base_class)
+    return "", "", ""
