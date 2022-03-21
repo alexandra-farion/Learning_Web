@@ -36,7 +36,7 @@ class DB:
                                             (nickname TEXT PRIMARY KEY, character TEXT, fixed_classes TEXT[][]);
                                             
                                             CREATE TABLE IF NOT EXISTS students
-                                            (nickname TEXT PRIMARY KEY, class TEXT, grouping TEXT, profession TEXT);     
+                                            (nickname TEXT PRIMARY KEY, class TEXT, grouping TEXT);     
                                                    
                                             CREATE TABLE IF NOT EXISTS classes
                                             (school TEXT, class TEXT PRIMARY KEY, classroom TEXT, subjects TEXT[]);                                        
@@ -59,10 +59,15 @@ class DB:
                         student, clazz = student_and_class.split(";")
                         student = clear_strings(student)
                         nickname = primary_nick(nicks, student.split()[0])
+                        clazz = clear_strings(clazz)
+
+                        if clazz in "8Б9Б10Б11Б":
+                            group = random.choice(["ест.", "эк."])
+                        else:
+                            group = str(random.randint(1, 2)) + " гр."
 
                         await self.__add_user(cursor, nickname, student, "0000", 'МАОУ "Лицей №6"', "students",
-                                              (clear_strings(clazz), random.randint(1, 2),
-                                               random.choice(["естеств.", "эконом.", None])))
+                                              (clazz, group))
 
                 with open("teachers.csv", encoding='utf-8') as file:
                     for teacher_and_classes in file.readlines():
@@ -87,10 +92,7 @@ class DB:
     async def __add_user(self, cursor, nick, name, password, school, database, data: tuple):
         await cursor.execute("INSERT INTO peoples VALUES (%s, %s, %s, %s, %s)",
                              (nick, name, password, school, database))
-        if database == "teachers":
-            await cursor.execute("INSERT INTO teachers VALUES (%s, %s, %s)", (nick,) + data)
-        else:
-            await cursor.execute("INSERT INTO students VALUES (%s, %s, %s, %s)", (nick,) + data)
+        await cursor.execute(f"INSERT INTO {database} VALUES (%s, %s, %s)", (nick,) + data)
 
     async def add_diary(self):
         date = datetime.date.today().isocalendar()

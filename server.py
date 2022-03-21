@@ -28,7 +28,7 @@ async def enter(request: Request):
                                     detail="Incorrect PASSWORD / NAME")
 
             if people["database"] == "students":
-                await cursor.execute(f"""SELECT class, grouping, profession 
+                await cursor.execute(f"""SELECT class, grouping 
                                         FROM students 
                                         WHERE nickname='{nickname}'
                                         """)
@@ -229,13 +229,20 @@ async def get_teacher_schedule(info: Request):
                 clazz = class_and_subjects[0]
                 teacher_subjects = class_and_subjects[1:]
 
-                await cursor.execute(f"""SELECT schedule 
-                                        FROM diary
+                # await cursor.execute(f"""SELECT schedule
+                #                         FROM diary
+                #                         WHERE school='{school}' AND week='{week}' AND class='{clazz}'
+                #                         """)
+                await cursor.execute(f"""SELECT schedule, classroom 
+                                        FROM diary, (SELECT classroom
+                                                    FROM classes 
+                                                    WHERE school='{school}' AND class='{clazz}') as classroom
                                         WHERE school='{school}' AND week='{week}' AND class='{clazz}'
                                         """)
-                class_schedule = await cursor.fetchone()
-                if class_schedule:
-                    class_schedule = class_schedule[0]
+                data = await cursor.fetchone()
+                if data:
+                    class_schedule = data[0]
+                    classroom = data[1]
                 else:
                     continue
 
@@ -247,13 +254,13 @@ async def get_teacher_schedule(info: Request):
                         group = ""
 
                         if "/" in subject:
-                            subject, group, classroom = get_subject_group_classroom(subject,
-                                                                                    teacher_subjects, "каб. 666")
+                            subject, group, clazzroom = get_subject_group_classroom(subject,
+                                                                                    teacher_subjects, classroom)
                         else:
-                            classroom = get_classroom(subject, "каб. 666")
+                            clazzroom = get_classroom(subject, classroom)
 
                         if subject and ((subject in teacher_subjects) or ((subject + group) in teacher_subjects)):
-                            schedule[i][j] = [clazz, subject + group, classroom, day[j][1], j]
+                            schedule[i][j] = [clazz, subject + group, clazzroom, day[j][1], j]
                             # чтобы, когда встретили у класса такой же предмет, поставить другой номер урока
                             class_schedule[i][j] = ["", "", "", "", i]
 

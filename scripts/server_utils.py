@@ -43,10 +43,12 @@ def clean_fixed_teacher_classes(input_classes):
     return classes
 
 
+@lru_cache(maxsize=2048, typed=True)
 def __get_subject(string: str, group: str):
     return string[:string.index(group)]
 
 
+@lru_cache(maxsize=2048, typed=True)
 def get_classroom(string: str, base_class: str):
     if "(" in string:
         return string[string.index("(") + 1: string.index(")")]

@@ -33,6 +33,27 @@ function getSubject(array, mark, id) {
     return tr
 }
 
+function getSubjectByGroup(subject) {
+    subject = subject.split("/")
+
+    for (let i = 0; i < subject.length; i++) {
+        const indexGroup = subject[i].indexOf(group)
+        if (indexGroup !== -1) {
+            return subject[i].slice(0, indexGroup - 1)
+        }
+    }
+    return ""
+}
+
+function getClassroom(subject) {
+    const index = subject.indexOf("(")
+    if (index !== -1) {
+        return " " + subject.slice(index, subject.indexOf(")") + 1)
+    }
+
+    return ""
+}
+
 function createSchedule(schedule, marks) {
     for (let i = 0; i <= 5; i++) {
         const subjects = []
@@ -48,8 +69,20 @@ function createSchedule(schedule, marks) {
             }
 
             const line = schedule[i][j]
-            const ind = subjects.indexOf(line[0])
+            const subject = line[0]
+            let ind = subjects.indexOf(subject)
             let mark = [""]
+
+            if (subject.indexOf("/") !== -1) {
+                line[0] = getSubjectByGroup(subject)
+
+                if (!line[0]) {
+                    line[1] = ""
+                    ind = -1
+                } else {
+                    line[0] += getClassroom(subject)
+                }
+            }
 
             if (ind !== -1 && subjects.length > 0) {
                 mark = [markData[ind][0], markData[ind][1], markData[ind][2]]
@@ -60,10 +93,13 @@ function createSchedule(schedule, marks) {
     }
 }
 
-export function runSchedule(clazz, school, nickname) {
+let group
+
+export function runSchedule(clazz, school, nickname, grouping) {
     const req = new XMLHttpRequest()
     const weekNumber = document.querySelector('input[type="week"]')
     weekNumber.value = niceDate(new Date())
+    group = grouping
 
     function schedule() {
         req.open("POST", "get_marks", true)

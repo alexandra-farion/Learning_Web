@@ -15,7 +15,6 @@ const character = json["character"]
 
 const clazz = json["class"]
 const grouping = json["grouping"]
-const profession = json["profession"]
 
 const fixed_classes = json["fixed_classes"]
 let htmlPage = ""
@@ -63,7 +62,7 @@ function page(html) {
 
     const studentSchedule = document.getElementById("studentSchedule")
     if (studentSchedule) {
-        runSchedule(clazz, school, nickname)
+        runSchedule(clazz, school, nickname, grouping)
         return
     }
 
