@@ -1,5 +1,3 @@
-from random import randint
-
 from fastapi import HTTPException, status
 from psycopg.rows import dict_row
 from uvicorn import run
@@ -30,7 +28,7 @@ async def enter(request: Request):
                                     detail="Incorrect PASSWORD / NAME")
 
             if people["database"] == "students":
-                await cursor.execute(f"""SELECT class, grouping, profession 
+                await cursor.execute(f"""SELECT class, grouping 
                                         FROM students 
                                         WHERE nickname='{nickname}'
                                         """)
@@ -80,7 +78,8 @@ async def post_schedule(info: Request):
             else:
                 print("Создаю новое расписание")
                 await cursor.execute("""INSERT INTO diary VALUES (%s, %s, %s, %s)""",
-                                     (school, clazz, week, join_schedules(base_student_schedule, new_schedule)))
+                                     (school, clazz, week,
+                                      join_schedules([[["", ""] for _ in range(8)] for _ in range(6)], new_schedule)))
 
 
 async def get_schedule_from_bd(school, clazz, week):
@@ -230,13 +229,16 @@ async def get_teacher_schedule(info: Request):
                 clazz = class_and_subjects[0]
                 teacher_subjects = class_and_subjects[1:]
 
-                await cursor.execute(f"""SELECT schedule 
-                                        FROM diary
+                await cursor.execute(f"""SELECT schedule, classroom 
+                                        FROM diary, (SELECT classroom
+                                                    FROM classes 
+                                                    WHERE school='{school}' AND class='{clazz}') as classroom
                                         WHERE school='{school}' AND week='{week}' AND class='{clazz}'
                                         """)
-                class_schedule = await cursor.fetchone()
-                if class_schedule:
-                    class_schedule = class_schedule[0]
+                data = await cursor.fetchone()
+                if data:
+                    class_schedule = data[0]
+                    classroom = data[1]
                 else:
                     continue
 
@@ -248,14 +250,41 @@ async def get_teacher_schedule(info: Request):
                         group = ""
 
                         if "/" in subject:
-                            subject, group = get_subject_and_group(subject, teacher_subjects)
+                            subject, group, clazzroom = get_subject_group_classroom(subject,
+                                                                                    teacher_subjects, classroom)
+                        else:
+                            clazzroom = get_classroom(subject, classroom)
 
-                        if subject and (subject in teacher_subjects):
-                            schedule[i][j] = [clazz, subject + group, f"каб. {randint(1, 500)}", day[j][1], j]
+                        if subject and ((subject in teacher_subjects) or ((subject + group) in teacher_subjects)):
+                            schedule[i][j] = [clazz, subject + group, clazzroom, day[j][1], j]
                             # чтобы, когда встретили у класса такой же предмет, поставить другой номер урока
                             class_schedule[i][j] = ["", "", "", "", i]
 
     return [sorted(day, key=lambda x: x[-1]) for day in schedule]
+
+
+@app.post("/post_homework")
+async def post_homework(info: Request):
+    data = await info.json()
+    clazz = data["class"]
+    school = data["school"]
+    week = data["week"]
+    day_id = data["day_id"]
+    subject_id = data["subject_id"]
+    homework = data["homework"]
+
+    async with await connect() as connection:
+        async with connection.cursor() as cursor:
+            await cursor.execute(f"""SELECT schedule
+                                    FROM diary
+                                    WHERE week='{week}' AND class='{clazz}' AND school='{school}'
+                                    """)
+            schedule = (await cursor.fetchone())[0]
+            schedule[day_id][subject_id][1] = homework
+            await cursor.execute(f"""UPDATE diary
+                                    SET schedule = %s
+                                    WHERE school='{school}' AND class='{clazz}' AND week='{week}'
+                                    """, (schedule,))
 
 
 if __name__ == '__main__':

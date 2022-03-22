@@ -26,7 +26,7 @@ export function setSwal(tr, title, html) {
             },
             buttonsStyling: false
         }).fire({
-            title: title,
+            titleText: title,
             html: html,
             showCancelButton: true,
             showConfirmButton: false,
