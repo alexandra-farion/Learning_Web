@@ -18,8 +18,8 @@ export function getSchedule(date, clazz, school, func) {
     }))
 }
 
-export function setSwal(tr, title, html) {
-    tr.onclick = function () {
+export function setSwal(element, title, html) {
+    element.onclick = function () {
         Swal.mixin({
             customClass: {
                 cancelButton: 'button'

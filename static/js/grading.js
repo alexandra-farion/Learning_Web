@@ -121,7 +121,17 @@ function getMarksAndStudents() {
     }
 }
 
+function removeAdditionalTeacherSubjectSelect() {
+    const select = document.getElementById("trForSubjects")
+    if (select) {
+        select.remove()
+        document.getElementById("textSubject").remove()
+    }
+}
+
 function setSubjectsInSelect(subjects, func) {
+    removeAdditionalTeacherSubjectSelect()
+
     if (subjects.length > 1) {
         let selectSubjects = document.getElementById("subject")
 
@@ -142,8 +152,6 @@ function setSubjectsInSelect(subjects, func) {
                 func()
             })
         } else {
-            document.getElementById("trForSubjects").remove()
-            document.getElementById("textSubject").remove()
             setSubjectsInSelect(subjects, func)
         }
     }

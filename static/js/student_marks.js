@@ -1,4 +1,5 @@
 import {arraySum, str} from './base.js'
+import {setSwal} from './base_schedule.js'
 
 function getMarkContainer(value, subject, theme, weight) {
     const td = document.createElement("td")
@@ -9,27 +10,7 @@ function getMarkContainer(value, subject, theme, weight) {
     td.align = "center"
     td.bgColor = "#ffffff"
     td.innerHTML = `<i>${value}</i>`
-    td.onclick = function () {
-        Swal.mixin({
-            customClass: {
-                cancelButton: 'button'
-            },
-            buttonsStyling: false
-        }).fire({
-            title: value,
-            html: html,
-            showCancelButton: true,
-            showConfirmButton: false,
-            cancelButtonText: '<i>Закрыть</i>',
-            icon: 'info',
-            timer: 3500,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        })
-        Swal.stopTimer()
-    }
+    setSwal(td, value, html)
     return td
 }
 
@@ -45,11 +26,14 @@ function addHTML(value, html) {
 }
 
 function getAverageScore(marks, weights) {
-    let sum = 0
-    for (let i = 0; i < marks.length; i++) {
-        sum += marks[i] * weights[i]
+    if (marks) {
+        let sum = 0
+        for (let i = 0; i < marks.length; i++) {
+            sum += marks[i] * weights[i]
+        }
+        return (sum / arraySum(weights)).toFixed(2)
     }
-    return sum / arraySum(weights)
+    return ""
 }
 
 function setDays(hat, jsonReport) {
@@ -73,7 +57,7 @@ function setDays(hat, jsonReport) {
     for (const month in json_months) {
         addHTML(hat, `<th colspan="${json_months[month]}" bgcolor="#ffffff"><i>${months[month]}</i></th>`)
     }
-    addHTML(hat, `<td rowspan="2" bgcolor="#ffffff" align="center"><i>Ср. балл</i></td>`)
+    addHTML(hat, `<td rowspan="2" bgcolor="#ffffff" align="center" width="100px"><i>Ср. балл</i></td>`)
 }
 
 function setSubjects(table, arrSubjects) {
@@ -154,7 +138,7 @@ function setMarks(jsonReport, subjects) {
     }
     for (let i = 0; i < num_subjects; i++) {
         const subject = arr_subjects[i]
-        addTextIntoHTML(subjects[subject], getAverageScore(average[subject], weights[subject]).toFixed(2))
+        addTextIntoHTML(subjects[subject], getAverageScore(average[subject], weights[subject]))
     }
 }
 
@@ -169,7 +153,7 @@ function createReport(jsonReport) {
     setMarks(jsonReport, setSubjects(table, jsonReport["subjects"]))
 }
 
-function getReport(dateStart, dateEnd, nickname) {
+function getReport(dateStart, dateEnd, nickname, clazz, school) {
     const req = new XMLHttpRequest()
     req.open("POST", "get_mark_report", true)
     req.onload = function () {
@@ -181,6 +165,8 @@ function getReport(dateStart, dateEnd, nickname) {
     }
     req.send(JSON.stringify({
         "nickname": nickname,
+        "class": clazz,
+        "school": school,
         "start_date": dateStart,
         "end_date": dateEnd
     }))
@@ -192,9 +178,9 @@ const months = {
     "10": 'Октябрь', "11": 'Ноябрь', "12": 'Декабрь'
 }
 
-export function runMarks(nickname) {
+export function runMarks(nickname, clazz, school) {
     function getMarks() {
-        getReport(dateStart.value, dateEnd.value, nickname)
+        getReport(dateStart.value, dateEnd.value, nickname, clazz, school)
     }
 
     const dateStart = document.getElementById("start")

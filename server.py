@@ -189,13 +189,19 @@ async def get_marks(info: Request):
 async def get_mark_report(info: Request):
     data = await info.json()
     nickname = data["nickname"]
+    clazz = data["class"]
+    school = data["school"]
     start_date = normalise_date(data["start_date"])
     end_date = normalise_date(data["end_date"]) + datetime.timedelta(days=1)
 
     async with await connect() as connection:
         async with connection.cursor() as cursor:
+            await cursor.execute(f"""SELECT subjects
+                                    FROM classes
+                                    WHERE class='{clazz}' AND school='{school}'
+                                    """)
             report = {}
-            subjects = []
+            subjects = [subject for subject in (await cursor.fetchone())[0] if subject]
             while start_date != end_date:
                 await cursor.execute(f"""SELECT value, subject, weight, theme
                                     FROM marks

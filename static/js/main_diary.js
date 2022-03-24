@@ -80,7 +80,7 @@ function page(html) {
 
     const tableMarkReport = document.getElementById("markTable")
     if (tableMarkReport) {
-        runMarks(nickname)
+        runMarks(nickname, clazz, school)
         return
     }
 
