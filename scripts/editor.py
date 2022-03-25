@@ -53,7 +53,9 @@ class DB:
         async with await connect() as connection:
             async with connection.cursor() as cursor:
                 with open("students.csv", encoding='utf-8') as file:
-                    for student_and_class in file.readlines():
+                    students = file.readlines()
+                    students.reverse()
+                    for student_and_class in students:
                         student, clazz, group = student_and_class.replace("\n", "").replace("\ufeff", "").split(";")
                         clazz = clear_strings(clazz)
                         student = clear_strings(student)
@@ -180,14 +182,14 @@ class DB:
 
 
 db = DB()
-db.kill_all()
+# db.kill_all()
 
-db = DB()
-db.add_all()
+# db = DB()
+# db.add_all()
 # asyncio.run(db.add_diary())
 # asyncio.run(db.kill_diary())
-db.set_admin("Учитель14")
-db.set_admin("Учитель16")
-db.set_admin("Учитель38")
+# db.set_admin("Учитель14")
+# db.set_admin("Учитель16")
+# db.set_admin("Учитель38")
 
 db.print()

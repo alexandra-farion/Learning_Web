@@ -84,9 +84,10 @@ function createStudentsTable(json) {
         }
     }
 
-    for (let i = 0; i < students.length; i++) {
-        studentsNicks.push(students[i][0])
-        tr.insertAdjacentHTML('afterend', `<tr id="${i}">
+    if (students) {
+        for (let i = 0; i < students.length; i++) {
+            studentsNicks.push(students[i][0])
+            tr.insertAdjacentHTML('afterend', `<tr id="${i}">
                                                             <td>
                                                                 <i">${students[i][1]}</i>
                                                             </td>
@@ -96,6 +97,7 @@ function createStudentsTable(json) {
                                                                 </label>
                                                             </td>
                                                         </tr>`)
+        }
     }
 }
 
