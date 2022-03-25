@@ -6,7 +6,7 @@ import {runMarks} from "./student_marks.js"
 import {runTeacherSchedule} from "./teacher_schedule.js"
 
 const mainTable = document.getElementById("table")
-let curPage = sessionStorage.getItem("html")
+let pagesStack = JSON.parse(sessionStorage.getItem("html"))
 
 const json = JSON.parse(sessionStorage.getItem("user"))
 const school = json["school"]
@@ -21,12 +21,15 @@ let htmlPage = ""
 
 if (json) {
     htmlPage = character[1]
-    if (!curPage) {
-        curPage = htmlPage
+    if (pagesStack) {
+        page(pagesStack.pop())
+    } else {
+        pagesStack = []
+        page(htmlPage)
+        history.pushState(null, document.title, location.href)
     }
-    page(curPage)
 } else {
-    window.location.href = "/";
+    window.location.href = "/"
 }
 
 function newPage(html) {
@@ -44,13 +47,22 @@ function newPage(html) {
     return newTable
 }
 
+function back() {
+    pagesStack.pop()
+    page(pagesStack.pop())
+}
+
 function page(html) {
-    sessionStorage.setItem("html", html)
+    if (!html) {
+        return window.location.href = "/"
+    }
+    pagesStack.push(html)
+    sessionStorage.setItem("html", JSON.stringify(pagesStack))
     newPage(html)
 
     setResponseForButton("ads", page)
     setFuncForButton("back", () => {
-        page(htmlPage)
+        back()
     })
 
     setResponseForButton("student_marks", page)
@@ -89,3 +101,8 @@ function page(html) {
         runTeacherSchedule(fixed_classes, school)
     }
 }
+
+window.addEventListener('popstate', function () {
+    back()
+    history.pushState(null, document.title, location.href)
+})

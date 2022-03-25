@@ -14,23 +14,22 @@ function toast() {
     })
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("enter_button").onclick = function () {
-        if (nickname.value && password.value) {
-            req.open("POST", "enter", true)
-            req.onload = function () {
-                if (req.status === 200) {
-                    sessionStorage.clear()
-                    sessionStorage.setItem("user", req.responseText)
-                    window.location.href = "diary"
-                } else {
-                    console.log(req.response)
-                    toast()
-                }
+document.getElementById("enter_button").onclick = function () {
+    if (nickname.value && password.value) {
+        req.open("POST", "enter", true)
+        req.onload = function () {
+            if (req.status === 200) {
+                sessionStorage.setItem("user", req.responseText)
+                window.location.href = "diary"
+            } else {
+                console.log(req.response)
+                toast()
             }
-            req.send(JSON.stringify({"school": school.value, "nickname": nickname.value, "password": password.value}))
-        } else {
-            toast()
         }
+        req.send(JSON.stringify({"school": school.value, "nickname": nickname.value, "password": password.value}))
+    } else {
+        toast()
     }
-})
+}
+
+sessionStorage.clear()
