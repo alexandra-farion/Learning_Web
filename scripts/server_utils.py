@@ -81,8 +81,7 @@ def get_classroom(string: str, base_classroom: str):
     return base_classroom
 
 
-@lru_cache(maxsize=1024, typed=True)
-def get_subject_group_classroom(subjects_where_found: str, subjects: tuple, base_classroom: str):
+def get_subject_group_classroom(subjects_where_found: str, subjects: list, base_classroom: str):
     for subject in subjects:
         for subject_and_group in subjects_where_found.split("/"):
             if subject in subject_and_group:
