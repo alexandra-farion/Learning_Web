@@ -2,7 +2,7 @@ import {niceDate, str} from './base.js'
 import {getSchedule} from './base_schedule.js'
 
 function getSubjectContainer(subject, id) {
-    const tr = document.createElement('tr');
+    const tr = document.createElement('tr')
     tr.id = id
     tr.innerHTML = `<th style="border: #F9F2DC"><input type="text" value="${subject}"></th>`
     return tr
@@ -38,9 +38,9 @@ export function runScheduling(school) {
 
     document.getElementById("change").onclick = function () {
         const req = new XMLHttpRequest()
-        const schedule = [[], [], [], [], [], []];
-        let numSubj = 0;
-        let day = 0;
+        const schedule = [[], [], [], [], [], []]
+        let numSubj = 0
+        let day = 0
 
         for (let i = 1; i < inputs.length; i++) {
             schedule[day][numSubj] = inputs[i].value
@@ -52,7 +52,7 @@ export function runScheduling(school) {
             }
         }
 
-        req.open("POST", "post_schedule", true);
+        req.open("POST", "post_schedule", true)
         req.onload = function () {
             if (req.status === 200) {
                 Swal.fire({

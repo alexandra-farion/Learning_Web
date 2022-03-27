@@ -13,7 +13,7 @@ async def enter(request: Request):
     nickname = data["nickname"]
     password = data["password"]
     school = data["school"]
-    answer_dict = {"nickname": nickname, "school": school}
+    answer_dict: dict = {"nickname": nickname, "school": school}
 
     async with await connect() as connection:
         async with connection.cursor(row_factory=dict_row) as cursor:
@@ -21,7 +21,7 @@ async def enter(request: Request):
                                     FROM peoples 
                                     WHERE nickname='{nickname}' AND password='{password}' AND school='{school}'
                                     """)
-            people = await cursor.fetchone()
+            people: dict = await cursor.fetchone()
 
             if not people:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -269,13 +269,13 @@ async def get_teacher_schedule(info: Request):
                         group = ""
 
                         if "/" in subject:
-                            subject, group, clazzroom = get_subject_group_classroom(subject,
-                                                                                    teacher_subjects, classroom)
+                            subject, group, new_classroom = get_subject_group_classroom(subject,
+                                                                                        teacher_subjects, classroom)
                         else:
-                            clazzroom = get_classroom(subject, classroom)
+                            new_classroom = get_classroom(subject, classroom)
 
                         if subject and ((subject in teacher_subjects) or ((subject + group) in teacher_subjects)):
-                            schedule[i][j] = [clazz, subject + group, clazzroom, day[j][1], j]
+                            schedule[i][j] = [clazz, subject + group, new_classroom, day[j][1], j]
                             # чтобы, когда встретили у класса такой же предмет, поставить другой номер урока
                             class_schedule[i][j] = ["", "", "", "", i]
 

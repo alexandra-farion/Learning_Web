@@ -90,7 +90,7 @@ function createSchedule(schedule) {
 
 const xmlHttpRequest = function (clazz, homework, dayId, subject_id) {
     return new Promise(function (resolve, reject) {
-        const req = new XMLHttpRequest();
+        const req = new XMLHttpRequest()
         req.open("POST", "post_homework", true)
         req.onload = function () {
             if (req.status === 200) {

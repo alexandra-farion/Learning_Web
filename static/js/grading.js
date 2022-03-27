@@ -1,4 +1,4 @@
-import {str} from "./base.js";
+import {str} from "./base.js"
 
 function getDate() {
     let yourDate = new Date()
@@ -37,14 +37,13 @@ function postData(text, weight, date) {
     json["date"] = date
     json["subject"] = currentSubject
 
-    req.open("POST", "post_marks", true);
-    req.onload = null;
+    req.open("POST", "post_marks", true)
     req.send(JSON.stringify(json))
 }
 
 function getStudents(clazz, school, date, workName, markWeight) {
     const req = new XMLHttpRequest()
-    req.open("POST", "get_students", true);
+    req.open("POST", "get_students", true)
     req.onload = function () {
         if (req.status === 200) {
             const json = JSON.parse(req.responseText)
@@ -76,7 +75,7 @@ function createStudentsTable(json) {
     const marks = json["marks"]
 
     for (let i = 0; i < 666; i++) {
-        let oldTr = document.getElementById(str(i));
+        let oldTr = document.getElementById(str(i))
         if (oldTr) {
             oldTr.remove()
         } else {

@@ -154,7 +154,6 @@ function createReport(jsonReport) {
 }
 
 function getReport(dateStart, dateEnd, nickname, clazz, school) {
-    const req = new XMLHttpRequest()
     req.open("POST", "get_mark_report", true)
     req.onload = function () {
         if (req.status === 200) {
@@ -172,6 +171,7 @@ function getReport(dateStart, dateEnd, nickname, clazz, school) {
     }))
 }
 
+const req = new XMLHttpRequest()
 const months = {
     "01": 'Январь', "02": 'Февраль', "03": 'Март', "04": 'Апрель', "05": 'Май',
     "06": 'Июнь', "07": 'Июль', "08": 'Август', "09": 'Сентябрь',

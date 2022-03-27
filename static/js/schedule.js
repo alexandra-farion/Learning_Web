@@ -5,7 +5,7 @@ function getSubject(array, mark, id) {
     const subject = array[0]
     const homework = array[1]
     let html = ""
-    const tr = document.createElement('tr');
+    const tr = document.createElement('tr')
     tr.id = id
 
     if (homework) {

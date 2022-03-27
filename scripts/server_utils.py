@@ -21,8 +21,8 @@ def join_schedules(old_schedule, new_schedule):
     return old_schedule
 
 
-def contains_subject_by_date(schedule, subject, weekday):
-    if not schedule:
+def contains_subject_by_date(schedule: list, subject: str, weekday: int):
+    if (not schedule) or (weekday == 6):
         return False
 
     contains_subject = False
@@ -81,7 +81,8 @@ def get_classroom(string: str, base_classroom: str):
     return base_classroom
 
 
-def get_subject_group_classroom(subjects_where_found: str, subjects: list, base_classroom: str):
+@lru_cache(maxsize=1024, typed=True)
+def get_subject_group_classroom(subjects_where_found: str, subjects: tuple, base_classroom: str):
     for subject in subjects:
         for subject_and_group in subjects_where_found.split("/"):
             if subject in subject_and_group:
