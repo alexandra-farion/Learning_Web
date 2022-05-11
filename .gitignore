@@ -1,6 +1,7 @@
 .idea/
-.env
+.env/
 venv/
+django/
 
 __pycache__/
 EducationalTest/__pycache__/
