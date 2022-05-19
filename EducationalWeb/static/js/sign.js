@@ -18,12 +18,14 @@ document.getElementById("enter_button").onclick = function () {
     if (nickname.value && password.value) {
         req.open("POST", "enter", true)
         req.onload = function () {
-            if (req.status === 200) {
-                sessionStorage.setItem("user", req.responseText)
-                window.location.href = "diary"
-            } else {
+            if (req.status === 404) {
                 console.log(req.response)
                 toast()
+            }
+            if (req.status === 200) {
+                console.log(req.responseText)
+                sessionStorage.setItem("user", req.responseText)
+                window.location.href = "diary"
             }
         }
         req.send(JSON.stringify({"school": school.value, "nickname": nickname.value, "password": password.value}))

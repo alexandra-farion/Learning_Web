@@ -104,17 +104,13 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
             'filters': ['require_debug_true'],
-            'level': 'ERROR',
+            'level': 'INFO',
         },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'ERROR',
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'INFO',
             'propagate': True,
         },
     },
