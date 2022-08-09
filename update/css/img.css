@@ -1,0 +1,21 @@
+.img_left_for_sing_in {
+    align-content: flex-start;
+    margin-top: 60%;
+}
+.align_img {
+    display: flex;
+    margin-left: 30%;
+}
+.img_right_for_sing_in {
+    align-content: flex-end;
+    margin-left: 60%;
+    margin-bottom: 60%;
+}
+
+.img_emblem {
+    height: 40px;
+    margin-left: 80%;
+}
+.img_for_logo {
+    margin-left: 10px;
+}

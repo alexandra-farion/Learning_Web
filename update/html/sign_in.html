@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+    <link rel="shortcut icon" href="../img/emblem.png">
+    <link rel="stylesheet" href="../css/img.css" type="text/css">
+    <link rel="stylesheet" href="../css/divs_class.css" type="text/css">
+    <link rel="stylesheet" href="../css/main_for_sign_in.css" type="text/css">
+    <link rel="stylesheet" href="../css/tags.css" type="text/css">
+    <link rel="stylesheet" href="../css/class.css" type="text/css">
+</head>
+<body>
+<header>
+    <div class="emblem"></div>
+</header>
+<main>
+    <div class="left_for_sing_in">
+        <img src="../img/for_sign_0.png" class="img_left_for_sing_in" alt="">
+    </div>
+    <div class="main_for_registration">
+        <div class="align_img">
+            <img src="../img/for_sign_1.png" alt="">
+            <img src="../img/for_main.png" alt="">
+        </div>
+        <div class="logo"><h2>Учебная паутина</h2></div>
+        <div>
+            <div>
+                <p><i>Регион</i></p>
+                <label>
+                    <select>
+                        <option>Челябинская область</option>
+                        <option>Калининградская область</option>
+                        <option>Омская область</option>
+                    </select>
+                </label>
+            </div>
+            <div>
+                <p><i>Город</i></p>
+                <label>
+                    <select>
+                        <option>г. Миасс</option>
+                        <option>г. Озёрск</option>
+                        <option>г. Снежинск</option>
+                    </select>
+                </label>
+            </div>
+            <div>
+                <p><i>Образовательная организация</i></p>
+                <label for="schools">
+                    <select id="schools">
+                        <option>МАОУ "Лицей №6"</option>
+                        <option>Школа №9</option>
+                        <option>Гимназия №8</option>
+                    </select>
+                </label>
+            </div>
+            <div>
+                <p>
+                    <i>Логин</i>
+                </p>
+                <p>
+                    <label for="surname">
+                        <input type='text' id="surname" autofocus placeholder="1">
+                    </label>
+                </p>
+            </div>
+            <div>
+                <p>
+                    <i>Пароль</i>
+                </p>
+                <p>
+                    <label for="password">
+                        <input type='password' id="password" placeholder="1">
+                    </label>
+                </p>
+            </div>
+            <div>
+                <button id="enter_button" class="button">
+                    <i>Войти</i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="right_for_sing_in">
+        <img src="../img/for_sign_2.png" class="img_right_for_sing_in" alt="">
+    </div>
+</main>
+<footer>
+
+</footer>
+</body>
+<!--<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>-->
+<!--<script src="{{ url_for('static', path='/js/sign.js') }}" charset="utf-8"></script>-->
+</html>

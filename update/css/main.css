@@ -1,0 +1,27 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: Snell Roundhand, cursive;
+}
+
+html, body {
+    height: 100%;
+}
+
+main {
+    background-color: #F9F2DC;
+    height: calc(100% - (120px));
+    display: flex;
+}
+
+header {
+    width: 100%;
+    background-color: #F9F2DC;
+    height: 100px;
+}
+
+footer {
+    width: 100%;
+    background-color: #DBCFA9;
+    height: 20px;
+}
