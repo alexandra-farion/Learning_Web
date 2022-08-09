@@ -13,7 +13,7 @@ async def enter(request: Request):
     nickname = data["nickname"]
     password = data["password"]
     school = data["school"]
-    answer_dict = {"nickname": nickname, "school": school}
+    answer_dict: dict = {"nickname": nickname, "school": school}
 
     async with await connect() as connection:
         async with connection.cursor(row_factory=dict_row) as cursor:
@@ -21,7 +21,7 @@ async def enter(request: Request):
                                     FROM peoples 
                                     WHERE nickname='{nickname}' AND password='{password}' AND school='{school}'
                                     """)
-            people = await cursor.fetchone()
+            people: dict = await cursor.fetchone()
 
             if not people:
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -99,22 +99,35 @@ async def get_students(info: Request):
     clazz = data["class"]
     date = data["date"]
     subject = data["subject"]
+    calendar = tuple(map(str, strdate_to_datetime(date).isocalendar()))
 
     async with await connect() as connection:
         async with connection.cursor() as cursor:
-            await cursor.execute(f"""SELECT student.nickname, name
-                                    FROM peoples, (SELECT nickname
+            schedule = await get_schedule_from_bd(school, clazz, calendar[0] + "-W" + calendar[1])
+            weekday = int(calendar[2]) - 1
+            if not contains_subject_by_date(schedule, subject, weekday):
+                return {}
+
+            await cursor.execute(f"""SELECT student.nickname, name, student.grouping
+                                    FROM peoples, (SELECT nickname, grouping
                                         FROM students
                                         WHERE class='{clazz}') AS student
                                     WHERE peoples.nickname = student.nickname and school='{school}'
                                     """)
 
+            subjects_in_day = tuple(i[0] for i in schedule[0][weekday])
             students = await cursor.fetchall()
+            students_to_post = []
             marks = []
             theme = ""
             weight = ""
 
             for student in students:
+                if incompatible_group(subject, subjects_in_day, student[2]):
+                    continue
+                else:
+                    students_to_post.append(student)
+
                 student = student[0]
                 await cursor.execute(f"""SELECT value
                                         FROM marks
@@ -132,7 +145,7 @@ async def get_students(info: Request):
                 else:
                     marks.append("")
 
-            return {"students": students, "marks": marks, "theme": theme, "weight": weight}
+            return {"students": students_to_post, "marks": marks, "theme": theme, "weight": weight}
 
 
 @app.post("/post_marks")
@@ -189,19 +202,25 @@ async def get_marks(info: Request):
 async def get_mark_report(info: Request):
     data = await info.json()
     nickname = data["nickname"]
-    start_date = normalise_date(data["start_date"])
-    end_date = normalise_date(data["end_date"]) + datetime.timedelta(days=1)
+    clazz = data["class"]
+    school = data["school"]
+    start_date = strdate_to_datetime(data["start_date"])
+    end_date = strdate_to_datetime(data["end_date"]) + datetime.timedelta(days=1)
 
     async with await connect() as connection:
         async with connection.cursor() as cursor:
+            await cursor.execute(f"""SELECT subjects
+                                    FROM classes
+                                    WHERE class='{clazz}' AND school='{school}'
+                                    """)
             report = {}
-            subjects = []
+            subjects = [subject for subject in (await cursor.fetchone())[0] if subject]
             while start_date != end_date:
                 await cursor.execute(f"""SELECT value, subject, weight, theme
-                                    FROM marks
-                                    WHERE nickname = '{nickname}'
-                                    AND date = '{str(start_date)}'
-                                    """)
+                                        FROM marks
+                                        WHERE nickname = '{nickname}'
+                                        AND date = '{str(start_date)}'
+                                        """)
                 data = await cursor.fetchall()
 
                 if data:
@@ -250,13 +269,13 @@ async def get_teacher_schedule(info: Request):
                         group = ""
 
                         if "/" in subject:
-                            subject, group, clazzroom = get_subject_group_classroom(subject,
-                                                                                    teacher_subjects, classroom)
+                            subject, group, new_classroom = get_subject_group_classroom(subject,
+                                                                                        teacher_subjects, classroom)
                         else:
-                            clazzroom = get_classroom(subject, classroom)
+                            new_classroom = get_classroom(subject, classroom)
 
                         if subject and ((subject in teacher_subjects) or ((subject + group) in teacher_subjects)):
-                            schedule[i][j] = [clazz, subject + group, clazzroom, day[j][1], j]
+                            schedule[i][j] = [clazz, subject + group, new_classroom, day[j][1], j]
                             # чтобы, когда встретили у класса такой же предмет, поставить другой номер урока
                             class_schedule[i][j] = ["", "", "", "", i]
 

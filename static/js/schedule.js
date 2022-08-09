@@ -5,7 +5,7 @@ function getSubject(array, mark, id) {
     const subject = array[0]
     const homework = array[1]
     let html = ""
-    const tr = document.createElement('tr');
+    const tr = document.createElement('tr')
     tr.id = id
 
     if (homework) {
@@ -69,18 +69,19 @@ function createSchedule(schedule, marks) {
             }
 
             const line = schedule[i][j]
-            const subject = line[0]
-            let ind = subjects.indexOf(subject)
+            let subject = line[0]
             let mark = [""]
+            let ind = subjects.indexOf(subject)
 
             if (subject.indexOf("/") !== -1) {
-                line[0] = getSubjectByGroup(subject)
+                subject = getSubjectByGroup(subject)
 
-                if (!line[0]) {
-                    line[1] = ""
-                    ind = -1
+                if (subject) {
+                    ind = subjects.indexOf(subject)
+                    line[0] = subject + getClassroom(subject)
                 } else {
-                    line[0] += getClassroom(subject)
+                    line[0] = ""
+                    line[1] = ""
                 }
             }
 

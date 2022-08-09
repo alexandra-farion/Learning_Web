@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import random
 
 from postgresgl import *
 
@@ -53,20 +52,15 @@ class DB:
     async def add_people(self):
         async with await connect() as connection:
             async with connection.cursor() as cursor:
-                nicks = []
                 with open("students.csv", encoding='utf-8') as file:
-                    for student_and_class in file.readlines():
-                        student, clazz = student_and_class.split(";")
-                        student = clear_strings(student)
-                        nickname = primary_nick(nicks, student.split()[0])
+                    students = file.readlines()
+                    students.reverse()
+                    for student_and_class in students:
+                        student, clazz, group = student_and_class.replace("\n", "").replace("\ufeff", "").split(";")
                         clazz = clear_strings(clazz)
+                        student = clear_strings(student)
 
-                        if clazz in "8Б9Б10Б11Б":
-                            group = random.choice(["ест.", "эк."])
-                        else:
-                            group = str(random.randint(1, 2)) + " гр."
-
-                        await self.__add_user(cursor, nickname, student, "0000", 'МАОУ "Лицей №6"', "students",
+                        await self.__add_user(cursor, student, student, "0000", 'МАОУ "Лицей №6"', "students",
                                               (clazz, group))
 
                 with open("teachers.csv", encoding='utf-8') as file:
@@ -74,9 +68,6 @@ class DB:
                         teacher_classes = []
                         teacher_and_classes = teacher_and_classes.replace("\n", "").replace("\ufeff", "").split(";")
                         teacher = teacher_and_classes[0]
-                        if teacher[-1] == " ":
-                            teacher = teacher[:-1]
-                        nickname = primary_nick(nicks, teacher.split()[0])
 
                         for j in teacher_and_classes[1:]:
                             if j:
@@ -85,7 +76,7 @@ class DB:
                                     [i.replace("-", " ") for i in classes] + ["" for _ in range(5 - len(classes))])
 
                         teacher_classes += [["" for _ in range(5)] for _ in range(16 - len(teacher_classes))]
-                        await self.__add_user(cursor, nickname, teacher, "1111",
+                        await self.__add_user(cursor, teacher, teacher, "1111",
                                               'МАОУ "Лицей №6"', "teachers",
                                               ("teacher", teacher_classes))
 
@@ -192,11 +183,13 @@ class DB:
 
 db = DB()
 # db.kill_all()
-# db.set_admin("Фокина Елена Валерьевна")
-# db.set_admin("Журило Лия Владимировна")
 
 # db = DB()
 # db.add_all()
 # asyncio.run(db.add_diary())
 # asyncio.run(db.kill_diary())
+# db.set_admin("Учитель14")
+# db.set_admin("Учитель16")
+# db.set_admin("Учитель38")
+
 db.print()

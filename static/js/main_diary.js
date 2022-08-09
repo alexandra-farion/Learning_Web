@@ -1,4 +1,4 @@
-import {setResponseForButton, setFuncForButton} from './base.js';
+import {setResponseForButton, setFuncForButton} from './base.js'
 import {runSchedule} from "./schedule.js"
 import {runScheduling} from "./admin_scheduling.js"
 import {runGrading} from "./grading.js"
@@ -6,9 +6,11 @@ import {runMarks} from "./student_marks.js"
 import {runTeacherSchedule} from "./teacher_schedule.js"
 
 const mainTable = document.getElementById("table")
-let curPage = sessionStorage.getItem("html")
-
 const json = JSON.parse(sessionStorage.getItem("user"))
+
+if (!json) {
+    window.location.href = "/"
+}
 const school = json["school"]
 const nickname = json["nickname"]
 const character = json["character"]
@@ -17,17 +19,6 @@ const clazz = json["class"]
 const grouping = json["grouping"]
 
 const fixed_classes = json["fixed_classes"]
-let htmlPage = ""
-
-if (json) {
-    htmlPage = character[1]
-    if (!curPage) {
-        curPage = htmlPage
-    }
-    page(curPage)
-} else {
-    window.location.href = "/";
-}
 
 function newPage(html) {
     let newTable = document.getElementById("optional_table")
@@ -44,14 +35,17 @@ function newPage(html) {
     return newTable
 }
 
-function page(html) {
-    sessionStorage.setItem("html", html)
+function page(html, needHistory) {
+    if (needHistory) {
+        history.pushState(html, document.title, location.href)
+    } else {
+        history.replaceState(html, document.title, location.href)
+    }
+
     newPage(html)
 
     setResponseForButton("ads", page)
-    setFuncForButton("back", () => {
-        page(htmlPage)
-    })
+    setFuncForButton("back", () => history.back())
 
     setResponseForButton("student_marks", page)
     setResponseForButton("student_schedule", page)
@@ -62,30 +56,39 @@ function page(html) {
 
     const studentSchedule = document.getElementById("studentSchedule")
     if (studentSchedule) {
-        runSchedule(clazz, school, nickname, grouping)
-        return
+        return runSchedule(clazz, school, nickname, grouping)
     }
 
     const adminScheduling = document.getElementById("adminScheduling")
     if (adminScheduling) {
-        runScheduling(school)
-        return
+        return runScheduling(school)
     }
 
     const markWeight = document.getElementById("weight")
     if (markWeight) {
-        runGrading(school, fixed_classes)
-        return
+        return runGrading(school, fixed_classes)
     }
 
     const tableMarkReport = document.getElementById("markTable")
     if (tableMarkReport) {
-        runMarks(nickname)
-        return
+        return runMarks(nickname, clazz, school)
     }
 
     const teacherTable = document.getElementById("teacherTable")
     if (teacherTable) {
-        runTeacherSchedule(fixed_classes, school)
+        return runTeacherSchedule(fixed_classes, school)
     }
 }
+
+window.addEventListener('popstate', function (event) {
+    page(event.state, false)
+})
+
+let pageToShow
+if (history.state) {
+    pageToShow = history.state
+} else {
+    pageToShow = character[1]
+}
+
+page(pageToShow, false)

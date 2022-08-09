@@ -1,4 +1,4 @@
-import {str} from "./base.js";
+import {str} from "./base.js"
 
 function getDate() {
     let yourDate = new Date()
@@ -37,14 +37,13 @@ function postData(text, weight, date) {
     json["date"] = date
     json["subject"] = currentSubject
 
-    req.open("POST", "post_marks", true);
-    req.onload = null;
+    req.open("POST", "post_marks", true)
     req.send(JSON.stringify(json))
 }
 
 function getStudents(clazz, school, date, workName, markWeight) {
     const req = new XMLHttpRequest()
-    req.open("POST", "get_students", true);
+    req.open("POST", "get_students", true)
     req.onload = function () {
         if (req.status === 200) {
             const json = JSON.parse(req.responseText)
@@ -76,7 +75,7 @@ function createStudentsTable(json) {
     const marks = json["marks"]
 
     for (let i = 0; i < 666; i++) {
-        let oldTr = document.getElementById(str(i));
+        let oldTr = document.getElementById(str(i))
         if (oldTr) {
             oldTr.remove()
         } else {
@@ -84,9 +83,10 @@ function createStudentsTable(json) {
         }
     }
 
-    for (let i = 0; i < students.length; i++) {
-        studentsNicks.push(students[i][0])
-        tr.insertAdjacentHTML('afterend', `<tr id="${i}">
+    if (students) {
+        for (let i = 0; i < students.length; i++) {
+            studentsNicks.push(students[i][0])
+            tr.insertAdjacentHTML('afterend', `<tr id="${i}">
                                                             <td>
                                                                 <i">${students[i][1]}</i>
                                                             </td>
@@ -96,6 +96,7 @@ function createStudentsTable(json) {
                                                                 </label>
                                                             </td>
                                                         </tr>`)
+        }
     }
 }
 
@@ -121,7 +122,17 @@ function getMarksAndStudents() {
     }
 }
 
+function removeAdditionalTeacherSubjectSelect() {
+    const select = document.getElementById("trForSubjects")
+    if (select) {
+        select.remove()
+        document.getElementById("textSubject").remove()
+    }
+}
+
 function setSubjectsInSelect(subjects, func) {
+    removeAdditionalTeacherSubjectSelect()
+
     if (subjects.length > 1) {
         let selectSubjects = document.getElementById("subject")
 
@@ -142,8 +153,6 @@ function setSubjectsInSelect(subjects, func) {
                 func()
             })
         } else {
-            document.getElementById("trForSubjects").remove()
-            document.getElementById("textSubject").remove()
             setSubjectsInSelect(subjects, func)
         }
     }

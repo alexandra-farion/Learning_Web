@@ -3,7 +3,7 @@ const req = new XMLHttpRequest()
 export function getSchedule(date, clazz, school, func) {
     const argument = arguments[arguments.length - 1]
 
-    req.open("POST", "get_schedule", true);
+    req.open("POST", "get_schedule", true)
     req.onload = function () {
         if (req.status === 200) {
             func(JSON.parse(req.responseText), argument)
@@ -18,8 +18,8 @@ export function getSchedule(date, clazz, school, func) {
     }))
 }
 
-export function setSwal(tr, title, html) {
-    tr.onclick = function () {
+export function setSwal(element, title, html) {
+    element.onclick = function () {
         Swal.mixin({
             customClass: {
                 cancelButton: 'button'
